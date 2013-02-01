@@ -1,0 +1,16 @@
+maxx = 256 
+set xrange [1:maxx]
+set xlabel "bytes "
+set ylabel "cycles"
+set xtics 0,32,maxx
+set grid
+set key left
+plot    "blake2b.data" using 1:2 with lines title "BLAKE2b" 
+replot  "blake2s.data" using 1:2 with lines title "BLAKE2s"
+replot  "md5.data" using 1:2 with lines title "MD5"
+#pause -1 "hit return to continue"
+#set terminal png         
+#set output "plotcycles.png"                     
+set terminal pdfcairo
+set output "plotcycles.pdf"  
+replot
