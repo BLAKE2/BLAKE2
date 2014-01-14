@@ -34,7 +34,7 @@ static inline int blake2sp_init_leaf( blake2s_state *S, uint8_t outlen, uint8_t 
   store32( &P->leaf_length, 0 );
   store48( P->node_offset, offset );
   P->node_depth = 0;
-  P->inner_length = outlen;
+  P->inner_length = BLAKE2S_OUTBYTES;
   memset( P->salt, 0, sizeof( P->salt ) );
   memset( P->personal, 0, sizeof( P->personal ) );
   return blake2s_init_param( S, P );
@@ -50,7 +50,7 @@ static inline int blake2sp_init_root( blake2s_state *S, uint8_t outlen, uint8_t 
   store32( &P->leaf_length, 0 );
   store48( P->node_offset, 0ULL );
   P->node_depth = 1;
-  P->inner_length = outlen;
+  P->inner_length = BLAKE2S_OUTBYTES;
   memset( P->salt, 0, sizeof( P->salt ) );
   memset( P->personal, 0, sizeof( P->personal ) );
   return blake2s_init_param( S, P );
