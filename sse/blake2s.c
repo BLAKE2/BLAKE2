@@ -274,10 +274,10 @@ static inline int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2
   const uint32_t m14 = ( ( uint32_t * )block )[14];
   const uint32_t m15 = ( ( uint32_t * )block )[15];
 #endif
-  row1 = ff0 = LOAD( &S->h[0] );
-  row2 = ff1 = LOAD( &S->h[4] );
+  row1 = ff0 = LOADU( &S->h[0] );
+  row2 = ff1 = LOADU( &S->h[4] );
   row3 = _mm_setr_epi32( 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A );
-  row4 = _mm_xor_si128( _mm_setr_epi32( 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ), LOAD( &S->t[0] ) );
+  row4 = _mm_xor_si128( _mm_setr_epi32( 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ), LOADU( &S->t[0] ) );
   ROUND( 0 );
   ROUND( 1 );
   ROUND( 2 );
@@ -288,8 +288,8 @@ static inline int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2
   ROUND( 7 );
   ROUND( 8 );
   ROUND( 9 );
-  STORE( &S->h[0], _mm_xor_si128( ff0, _mm_xor_si128( row1, row3 ) ) );
-  STORE( &S->h[4], _mm_xor_si128( ff1, _mm_xor_si128( row2, row4 ) ) );
+  STOREU( &S->h[0], _mm_xor_si128( ff0, _mm_xor_si128( row1, row3 ) ) );
+  STOREU( &S->h[4], _mm_xor_si128( ff1, _mm_xor_si128( row2, row4 ) ) );
   return 0;
 }
 

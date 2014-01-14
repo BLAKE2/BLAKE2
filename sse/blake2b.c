@@ -284,14 +284,14 @@ static inline int blake2b_compress( blake2b_state *S, const uint8_t block[BLAKE2
   const uint64_t m14 = ( ( uint64_t * )block )[14];
   const uint64_t m15 = ( ( uint64_t * )block )[15];
 #endif
-  row1l = LOAD( &S->h[0] );
-  row1h = LOAD( &S->h[2] );
-  row2l = LOAD( &S->h[4] );
-  row2h = LOAD( &S->h[6] );
-  row3l = LOAD( &blake2b_IV[0] );
-  row3h = LOAD( &blake2b_IV[2] );
-  row4l = _mm_xor_si128( LOAD( &blake2b_IV[4] ), LOAD( &S->t[0] ) );
-  row4h = _mm_xor_si128( LOAD( &blake2b_IV[6] ), LOAD( &S->f[0] ) );
+  row1l = LOADU( &S->h[0] );
+  row1h = LOADU( &S->h[2] );
+  row2l = LOADU( &S->h[4] );
+  row2h = LOADU( &S->h[6] );
+  row3l = LOADU( &blake2b_IV[0] );
+  row3h = LOADU( &blake2b_IV[2] );
+  row4l = _mm_xor_si128( LOADU( &blake2b_IV[4] ), LOADU( &S->t[0] ) );
+  row4h = _mm_xor_si128( LOADU( &blake2b_IV[6] ), LOADU( &S->f[0] ) );
   ROUND( 0 );
   ROUND( 1 );
   ROUND( 2 );
@@ -306,12 +306,12 @@ static inline int blake2b_compress( blake2b_state *S, const uint8_t block[BLAKE2
   ROUND( 11 );
   row1l = _mm_xor_si128( row3l, row1l );
   row1h = _mm_xor_si128( row3h, row1h );
-  STORE( &S->h[0], _mm_xor_si128( LOAD( &S->h[0] ), row1l ) );
-  STORE( &S->h[2], _mm_xor_si128( LOAD( &S->h[2] ), row1h ) );
+  STOREU( &S->h[0], _mm_xor_si128( LOADU( &S->h[0] ), row1l ) );
+  STOREU( &S->h[2], _mm_xor_si128( LOADU( &S->h[2] ), row1h ) );
   row2l = _mm_xor_si128( row4l, row2l );
   row2h = _mm_xor_si128( row4h, row2h );
-  STORE( &S->h[4], _mm_xor_si128( LOAD( &S->h[4] ), row2l ) );
-  STORE( &S->h[6], _mm_xor_si128( LOAD( &S->h[6] ), row2h ) );
+  STOREU( &S->h[4], _mm_xor_si128( LOADU( &S->h[4] ), row2l ) );
+  STOREU( &S->h[6], _mm_xor_si128( LOADU( &S->h[6] ), row2h ) );
   return 0;
 }
 
