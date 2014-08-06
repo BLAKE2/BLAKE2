@@ -10,10 +10,10 @@ blake2b:	blake2b-ref.c
 		$(CC) blake2b-ref.c -o $@ $(CFLAGS) -DBLAKE2B_SELFTEST
 
 blake2sp:	blake2sp-ref.c blake2s-ref.c
-		$(CC) blake2sp-ref.c -o $@ $(CFLAGS) -DBLAKE2SP_SELFTEST
+		$(CC) blake2sp-ref.c blake2s-ref.c -o $@ $(CFLAGS) -DBLAKE2SP_SELFTEST
 
 blake2bp:	blake2bp-ref.c blake2b-ref.c
-		$(CC) blake2bp-ref.c -o $@ $(CFLAGS) -DBLAKE2BP_SELFTEST
+		$(CC) blake2bp-ref.c blake2b-ref.c -o $@ $(CFLAGS) -DBLAKE2BP_SELFTEST
 
 kat:
 		$(CC) $(CFLAGS) -o genkat genkat.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c
