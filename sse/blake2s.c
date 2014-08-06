@@ -164,11 +164,10 @@ static inline int blake2s_init0( blake2s_state *S )
 /* init2 xors IV with input parameter block */
 int blake2s_init_param( blake2s_state *S, const blake2s_param *P )
 {
-  uint8_t *p, *h, *v;
   //blake2s_init0( S );
-  v = ( uint8_t * )( blake2s_IV );
-  h = ( uint8_t * )( S->h );
-  p = ( uint8_t * )( P );
+  const uint8_t * v = ( const uint8_t * )( blake2s_IV );
+  const uint8_t * p = ( const uint8_t * )( P );
+  uint8_t * h = ( uint8_t * )( S->h );
   /* IV XOR ParamBlock */
   memset( S, 0, sizeof( blake2s_state ) );
 
@@ -327,7 +326,10 @@ int blake2s_update( blake2s_state *S, const uint8_t *in, uint64_t inlen )
 /* Is this correct? */
 int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen )
 {
-  uint8_t buffer[BLAKE2S_OUTBYTES];
+  uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
+
+  if( outlen > BLAKE2S_OUTBYTES )
+    return -1;
 
   if( S->buflen > BLAKE2S_BLOCKBYTES )
   {
@@ -370,7 +372,7 @@ int blake2s( uint8_t *out, const void *in, const void *key, const uint8_t outlen
     if( blake2s_init( S, outlen ) < 0 ) return -1;
   }
 
-  blake2s_update( S, ( uint8_t * )in, inlen );
+  blake2s_update( S, ( const uint8_t * )in, inlen );
   blake2s_final( S, out, outlen );
   return 0;
 }

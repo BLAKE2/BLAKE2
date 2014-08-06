@@ -19,9 +19,11 @@
 static inline uint32_t load32( const void *src )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
-  return *( uint32_t * )( src );
+  uint32_t w;
+  memcpy(&w, src, sizeof w);
+  return w;
 #else
-  const uint8_t *p = ( uint8_t * )src;
+  const uint8_t *p = ( const uint8_t * )src;
   uint32_t w = *p++;
   w |= ( uint32_t )( *p++ ) <<  8;
   w |= ( uint32_t )( *p++ ) << 16;
@@ -33,9 +35,11 @@ static inline uint32_t load32( const void *src )
 static inline uint64_t load64( const void *src )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
-  return *( uint64_t * )( src );
+  uint64_t w;
+  memcpy(&w, src, sizeof w);
+  return w;
 #else
-  const uint8_t *p = ( uint8_t * )src;
+  const uint8_t *p = ( const uint8_t * )src;
   uint64_t w = *p++;
   w |= ( uint64_t )( *p++ ) <<  8;
   w |= ( uint64_t )( *p++ ) << 16;
@@ -51,7 +55,7 @@ static inline uint64_t load64( const void *src )
 static inline void store32( void *dst, uint32_t w )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
-  *( uint32_t * )( dst ) = w;
+  memcpy(dst, &w, sizeof w);
 #else
   uint8_t *p = ( uint8_t * )dst;
   *p++ = ( uint8_t )w; w >>= 8;
@@ -64,7 +68,7 @@ static inline void store32( void *dst, uint32_t w )
 static inline void store64( void *dst, uint64_t w )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
-  *( uint64_t * )( dst ) = w;
+  memcpy(dst, &w, sizeof w);
 #else
   uint8_t *p = ( uint8_t * )dst;
   *p++ = ( uint8_t )w; w >>= 8;
@@ -125,7 +129,6 @@ static inline uint64_t rotr64( const uint64_t w, const unsigned c )
 static inline void secure_zero_memory( void *v, size_t n )
 {
   volatile uint8_t *p = ( volatile uint8_t * )v;
-
   while( n-- ) *p++ = 0;
 }
 

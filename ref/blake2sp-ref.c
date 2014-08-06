@@ -177,8 +177,7 @@ int blake2sp_final( blake2sp_state *S, uint8_t *out, const uint8_t outlen )
   for( size_t i = 0; i < PARALLELISM_DEGREE; ++i )
     blake2s_update( S->R, hash[i], BLAKE2S_OUTBYTES );
 
-  blake2s_final( S->R, out, outlen );
-  return 0;
+  return blake2s_final( S->R, out, outlen );
 }
 
 
@@ -251,8 +250,7 @@ int blake2sp( uint8_t *out, const void *in, const void *key, uint8_t outlen, uin
   for( size_t i = 0; i < PARALLELISM_DEGREE; ++i )
     blake2s_update( FS, hash[i], BLAKE2S_OUTBYTES );
 
-  blake2s_final( FS, out, outlen );
-  return 0;
+  return blake2s_final( FS, out, outlen );
 }
 
 
