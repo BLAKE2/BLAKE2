@@ -61,13 +61,13 @@ static const uint8_t blake2s_sigma[10][16] =
 /* Some helper functions, not necessarily useful */
 static inline int blake2s_set_lastnode( blake2s_state *S )
 {
-  S->f[1] = ~0U;
+  S->f[1] = -1;
   return 0;
 }
 
 static inline int blake2s_clear_lastnode( blake2s_state *S )
 {
-  S->f[1] = 0U;
+  S->f[1] = 0;
   return 0;
 }
 
@@ -75,7 +75,7 @@ static inline int blake2s_set_lastblock( blake2s_state *S )
 {
   if( S->last_node ) blake2s_set_lastnode( S );
 
-  S->f[0] = ~0U;
+  S->f[0] = -1;
   return 0;
 }
 
@@ -83,7 +83,7 @@ static inline int blake2s_clear_lastblock( blake2s_state *S )
 {
   if( S->last_node ) blake2s_clear_lastnode( S );
 
-  S->f[0] = 0U;
+  S->f[0] = 0;
   return 0;
 }
 
