@@ -14,9 +14,6 @@
 #ifndef __BLAKE2S_ROUND_H__
 #define __BLAKE2S_ROUND_H__
 
-#define LOAD(p)  _mm_load_si128( (const __m128i *)(p) )
-#define STORE(p,r) _mm_store_si128((__m128i *)(p), r)
-
 #define LOADU(p)  _mm_loadu_si128( (const __m128i *)(p) )
 #define STOREU(p,r) _mm_storeu_si128((__m128i *)(p), r)
 
