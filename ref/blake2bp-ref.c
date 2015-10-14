@@ -190,11 +190,15 @@ int blake2bp( uint8_t *out, const void *in, const void *key, uint8_t outlen, uin
   blake2b_state FS[1];
 
   /* Verify parameters */
-  if ( NULL == in ) return -1;
+  if ( NULL == in && inlen > 0 ) return -1;
 
   if ( NULL == out ) return -1;
 
-  if ( NULL == key ) keylen = 0;
+  if( NULL == key && keylen > 0 ) return -1;
+
+  if( !outlen || outlen > BLAKE2B_OUTBYTES ) return -1;
+
+  if( keylen > BLAKE2B_KEYBYTES ) return -1;
 
   for( size_t i = 0; i < PARALLELISM_DEGREE; ++i )
     if( blake2bp_init_leaf( S[i], outlen, keylen, i ) < 0 ) return -1;
