@@ -19,4 +19,6 @@ This is the reference source code package of BLAKE2, which includes
 
 All code is licensed under CC0.
 
+More: [https://blake2.net](https://blake2.net).
+
 Contact: contact@blake2.net
