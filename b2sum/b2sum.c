@@ -284,7 +284,14 @@ int main( int argc, char **argv )
   for( int i = optind; i < argc; ++i )
   {
     FILE *f = NULL;
-    f = fopen( argv[i], "rb" );
+    if ( argv[i][0] == '-' )
+    {
+      f = stdin;
+    }
+    else
+    {
+      f = fopen( argv[i], "rb" );
+    }
 
     if( !f )
     {
