@@ -236,7 +236,7 @@ static void usage( char **argv, int errcode )
   fprintf( out, "\n" );
   fprintf( out, "With no FILE, or when FILE is -, read standard input.\n" );
   fprintf( out, "\n" );
-  fprintf( out, "  -a <hash>    hash algorithm (blake2b is default): \n"
+  fprintf( out, "  -a <algo>    hash algorithm (blake2b is default): \n"
                 "               [blake2b|blake2s|blake2bp|blake2sp]\n" );
   fprintf( out, "  --tag        create a BSD-style checksum\n" );
   fprintf( out, "  --help       display this help and exit\n" );
