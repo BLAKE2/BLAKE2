@@ -258,10 +258,11 @@ int main( int argc, char **argv )
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
     static struct option long_options[] = {
-      { "help", no_argument, 0, 0 },
-      { "tag", no_argument, 0, 0 },
+      { "help",  no_argument, 0,  0  },
+      { "tag",   no_argument, 0,  0  },
       { NULL, 0, NULL, 0 }
     };
+
     c = getopt_long( argc, argv, "a:", long_options, &option_index );
     if( c == -1 ) break;
     switch( c )
@@ -322,34 +323,34 @@ int main( int argc, char **argv )
     if( !f )
     {
       fprintf( stderr, "Could not open `%s': %s\n", argv[i], strerror( errno ) );
-      goto end0;
+      continue;
     }
 
     if( blake2_stream( f, hash ) < 0 )
     {
       fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
-      goto end1;
     }
-
-    if( bsdstyle )
-    {
-      if( blake2_stream == blake2b_stream ) printf( "BLAKE2b" );
-      else if( blake2_stream == blake2bp_stream ) printf( "BLAKE2bp" );
-      else if( blake2_stream == blake2s_stream ) printf( "BLAKE2s" );
-      else if( blake2_stream == blake2sp_stream ) printf( "BLAKE2sp" );
-      printf( " (%s) = ", argv[i] );
-    }
-
-    for( int j = 0; j < outlen; ++j )
-      printf( "%02x", hash[j] );
-
-    if( bsdstyle )
-      printf( "\n" );
     else
-      printf( " %s\n", argv[i] );
-end1:
+    {
+      if( bsdstyle )
+      {
+        if( blake2_stream == blake2b_stream ) printf( "BLAKE2b" );
+        else if( blake2_stream == blake2bp_stream ) printf( "BLAKE2bp" );
+        else if( blake2_stream == blake2s_stream ) printf( "BLAKE2s" );
+        else if( blake2_stream == blake2sp_stream ) printf( "BLAKE2sp" );
+        printf( " (%s) = ", argv[i] );
+      }
+
+      for( int j = 0; j < outlen; ++j )
+        printf( "%02x", hash[j] );
+
+      if( bsdstyle )
+        printf( "\n" );
+      else
+        printf( " %s\n", argv[i] );
+    }
+
     if( f != stdin ) fclose( f );
-end0: ;
   }
 
   return 0;
