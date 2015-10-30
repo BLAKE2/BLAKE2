@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <stdbool.h>
 
 #include "blake2.h"
 
@@ -231,9 +232,14 @@ typedef int ( *blake2fn )( FILE *, void * );
 static void usage( char **argv, int errcode )
 {
   FILE *out = errcode ? stderr : stdout;
-  fprintf( out, "Usage: %s [-a HASH] [FILE]...\n", argv[0] );
-  fprintf( out, "\tHASH in blake2b blake2s blake2bp blake2sp\n" );
-  fprintf( out, "\tWith no FILE, or when FILE is -, read standard input.\n" );
+  fprintf( out, "Usage: %s [OPTION]... [FILE]...\n", argv[0] );
+  fprintf( out, "\n" );
+  fprintf( out, "With no FILE, or when FILE is -, read standard input.\n" );
+  fprintf( out, "\n" );
+  fprintf( out, "  -a <hash>    hash algorithm (blake2b is default): \n"
+                "               [blake2b|blake2s|blake2bp|blake2sp]\n" );
+  fprintf( out, "  --tag        create a BSD-style checksum\n" );
+  fprintf( out, "  --help       display this help and exit\n" );
   exit( errcode );
 }
 
@@ -243,6 +249,7 @@ int main( int argc, char **argv )
   blake2fn blake2_stream = blake2b_stream;
   size_t outlen   = BLAKE2B_OUTBYTES;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
+  bool bsdstyle = false;
   int c;
   opterr = 1;
 
@@ -252,16 +259,13 @@ int main( int argc, char **argv )
     int option_index = 0;
     static struct option long_options[] = {
       { "help", no_argument, 0, 0 },
+      { "tag", no_argument, 0, 0 },
       { NULL, 0, NULL, 0 }
     };
     c = getopt_long( argc, argv, "a:", long_options, &option_index );
     if( c == -1 ) break;
     switch( c )
     {
-    case 0:
-      if( 0 == strcmp( "help", long_options[option_index].name ) )
-        usage( argv, 0 );
-      break;
     case 'a':
       if( 0 == strcmp( optarg, "blake2b" ) )
       {
@@ -289,6 +293,13 @@ int main( int argc, char **argv )
         usage( argv, 111 );
       }
 
+      break;
+
+    case 0:
+      if( 0 == strcmp( "help", long_options[option_index].name ) )
+        usage( argv, 0 );
+      else if( 0 == strcmp( "tag", long_options[option_index].name ) )
+        bsdstyle = true;
       break;
 
     case '?':
@@ -320,10 +331,22 @@ int main( int argc, char **argv )
       goto end1;
     }
 
+    if( bsdstyle )
+    {
+      if( blake2_stream == blake2b_stream ) printf( "BLAKE2b" );
+      else if( blake2_stream == blake2bp_stream ) printf( "BLAKE2bp" );
+      else if( blake2_stream == blake2s_stream ) printf( "BLAKE2s" );
+      else if( blake2_stream == blake2sp_stream ) printf( "BLAKE2sp" );
+      printf( " (%s) = ", argv[i] );
+    }
+
     for( int j = 0; j < outlen; ++j )
       printf( "%02x", hash[j] );
 
-    printf( " %s\n", argv[i] );
+    if( bsdstyle )
+      printf( "\n" );
+    else
+      printf( " %s\n", argv[i] );
 end1:
     if( f != stdin ) fclose( f );
 end0: ;
