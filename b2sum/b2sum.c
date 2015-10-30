@@ -228,12 +228,13 @@ cleanup_buffer:
 typedef int ( *blake2fn )( FILE *, void * );
 
 
-static void usage( char **argv )
+static void usage( char **argv, int errcode )
 {
-  fprintf( stderr, "Usage: %s [-a HASH] [FILE]...\n", argv[0] );
-  fprintf( stderr, "\tHASH in blake2b blake2s blake2bp blake2sp\n" );
-  fprintf( stderr, "\tWith no FILE, or when FILE is -, read standard input.\n" );
-  exit( 111 );
+  FILE *out = errcode ? stderr : stdout;
+  fprintf( out, "Usage: %s [-a HASH] [FILE]...\n", argv[0] );
+  fprintf( out, "\tHASH in blake2b blake2s blake2bp blake2sp\n" );
+  fprintf( out, "\tWith no FILE, or when FILE is -, read standard input.\n" );
+  exit( errcode );
 }
 
 
@@ -245,12 +246,22 @@ int main( int argc, char **argv )
   int c;
   opterr = 1;
 
-  if ( argc == 1 ) usage( argv ); /* show usage upon no-argument */
-
-  while( ( c = getopt( argc, argv, "a:" ) ) != -1 )
+  while( 1 )
   {
+    int this_option_optind = optind ? optind : 1;
+    int option_index = 0;
+    static struct option long_options[] = {
+      { "help", no_argument, 0, 0 },
+      { NULL, 0, NULL, 0 }
+    };
+    c = getopt_long( argc, argv, "a:", long_options, &option_index );
+    if( c == -1 ) break;
     switch( c )
     {
+    case 0:
+      if( 0 == strcmp( "help", long_options[option_index].name ) )
+        usage( argv, 0 );
+      break;
     case 'a':
       if( 0 == strcmp( optarg, "blake2b" ) )
       {
@@ -275,9 +286,13 @@ int main( int argc, char **argv )
       else
       {
         printf( "Invalid function name: `%s'\n", optarg );
-        usage( argv );
+        usage( argv, 111 );
       }
 
+      break;
+
+    case '?':
+      usage( argv, 1 );
       break;
     }
   }
