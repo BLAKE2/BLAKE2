@@ -232,6 +232,7 @@ static void usage( char **argv )
 {
   fprintf( stderr, "Usage: %s [-a HASH] [FILE]...\n", argv[0] );
   fprintf( stderr, "\tHASH in blake2b blake2s blake2bp blake2sp\n" );
+  fprintf( stderr, "\tWith no FILE, or when FILE is -, read standard input.\n" );
   exit( 111 );
 }
 
@@ -281,10 +282,16 @@ int main( int argc, char **argv )
     }
   }
 
+  if( optind == argc )
+    argv[argc++] = (char *) "-";
+
   for( int i = optind; i < argc; ++i )
   {
     FILE *f = NULL;
-    f = fopen( argv[i], "rb" );
+    if( argv[i][0] == '-' && argv[i][1] == '\0' )
+      f = stdin;
+    else
+      f = fopen( argv[i], "rb" );
 
     if( !f )
     {
@@ -303,7 +310,7 @@ int main( int argc, char **argv )
 
     printf( " %s\n", argv[i] );
 end1:
-    fclose( f );
+    if( f != stdin ) fclose( f );
 end0: ;
   }
 
