@@ -347,7 +347,7 @@ int main( int argc, char **argv )
       if( bsdstyle )
         printf( "\n" );
       else
-        printf( " %s\n", argv[i] );
+        printf( "  %s\n", argv[i] );
     }
 
     if( f != stdin ) fclose( f );
