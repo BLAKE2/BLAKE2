@@ -1,4 +1,4 @@
-CC?=gcc
+CC=gcc
 CFLAGS=-std=c99 -Wall -pedantic
 
 all:		blake2s blake2b blake2sp blake2bp

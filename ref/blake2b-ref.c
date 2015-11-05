@@ -365,6 +365,13 @@ int blake2b( uint8_t *out, const void *in, const void *key, const uint8_t outlen
   return 0;
 }
 
+#if defined(SUPERCOP)
+int crypto_hash( unsigned char *out, unsigned char *in, unsigned long long inlen )
+{
+  return blake2b( out, in, NULL, BLAKE2B_OUTBYTES, inlen, 0 );
+}
+#endif
+
 #if defined(BLAKE2B_SELFTEST)
 #include <string.h>
 #include "blake2-kat.h"
