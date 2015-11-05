@@ -188,7 +188,7 @@ int blake2sp( uint8_t *out, const void *in, const void *key, uint8_t outlen, uin
   blake2s_state FS[1];
 
   /* Verify parameters */
-  :if ( NULL == in && inlen > 0 ) return -1;
+  if ( NULL == in && inlen > 0 ) return -1;
 
   if ( NULL == out ) return -1;
 
