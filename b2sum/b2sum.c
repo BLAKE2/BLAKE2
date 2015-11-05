@@ -341,7 +341,7 @@ int main( int argc, char **argv )
         printf( " (%s) = ", argv[i] );
       }
 
-      for( int j = 0; j < outlen; ++j )
+      for( size_t j = 0; j < outlen; ++j )
         printf( "%02x", hash[j] );
 
       if( bsdstyle )
