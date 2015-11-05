@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <stdbool.h>
 
 #include "blake2.h"
 
@@ -228,11 +229,18 @@ cleanup_buffer:
 typedef int ( *blake2fn )( FILE *, void * );
 
 
-static void usage( char **argv )
+static void usage( char **argv, int errcode )
 {
-  fprintf( stderr, "Usage: %s [-a HASH] [FILE]...\n", argv[0] );
-  fprintf( stderr, "\tHASH in blake2b blake2s blake2bp blake2sp\n" );
-  exit( 111 );
+  FILE *out = errcode ? stderr : stdout;
+  fprintf( out, "Usage: %s [OPTION]... [FILE]...\n", argv[0] );
+  fprintf( out, "\n" );
+  fprintf( out, "With no FILE, or when FILE is -, read standard input.\n" );
+  fprintf( out, "\n" );
+  fprintf( out, "  -a <algo>    hash algorithm (blake2b is default): \n"
+                "               [blake2b|blake2s|blake2bp|blake2sp]\n" );
+  fprintf( out, "  --tag        create a BSD-style checksum\n" );
+  fprintf( out, "  --help       display this help and exit\n" );
+  exit( errcode );
 }
 
 
@@ -241,13 +249,22 @@ int main( int argc, char **argv )
   blake2fn blake2_stream = blake2b_stream;
   size_t outlen   = BLAKE2B_OUTBYTES;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
+  bool bsdstyle = false;
   int c;
   opterr = 1;
 
-  if ( argc == 1 ) usage( argv ); /* show usage upon no-argument */
-
-  while( ( c = getopt( argc, argv, "a:" ) ) != -1 )
+  while( 1 )
   {
+    int this_option_optind = optind ? optind : 1;
+    int option_index = 0;
+    static struct option long_options[] = {
+      { "help",  no_argument, 0,  0  },
+      { "tag",   no_argument, 0,  0  },
+      { NULL, 0, NULL, 0 }
+    };
+
+    c = getopt_long( argc, argv, "a:", long_options, &option_index );
+    if( c == -1 ) break;
     switch( c )
     {
     case 'a':
@@ -274,37 +291,66 @@ int main( int argc, char **argv )
       else
       {
         printf( "Invalid function name: `%s'\n", optarg );
-        usage( argv );
+        usage( argv, 111 );
       }
 
+      break;
+
+    case 0:
+      if( 0 == strcmp( "help", long_options[option_index].name ) )
+        usage( argv, 0 );
+      else if( 0 == strcmp( "tag", long_options[option_index].name ) )
+        bsdstyle = true;
+      break;
+
+    case '?':
+      usage( argv, 1 );
       break;
     }
   }
 
+  if( optind == argc )
+    argv[argc++] = (char *) "-";
+
   for( int i = optind; i < argc; ++i )
   {
     FILE *f = NULL;
-    f = fopen( argv[i], "rb" );
+    if( argv[i][0] == '-' && argv[i][1] == '\0' )
+      f = stdin;
+    else
+      f = fopen( argv[i], "rb" );
 
     if( !f )
     {
       fprintf( stderr, "Could not open `%s': %s\n", argv[i], strerror( errno ) );
-      goto end0;
+      continue;
     }
 
     if( blake2_stream( f, hash ) < 0 )
     {
       fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
-      goto end1;
+    }
+    else
+    {
+      if( bsdstyle )
+      {
+        if( blake2_stream == blake2b_stream ) printf( "BLAKE2b" );
+        else if( blake2_stream == blake2bp_stream ) printf( "BLAKE2bp" );
+        else if( blake2_stream == blake2s_stream ) printf( "BLAKE2s" );
+        else if( blake2_stream == blake2sp_stream ) printf( "BLAKE2sp" );
+        printf( " (%s) = ", argv[i] );
+      }
+
+      for( int j = 0; j < outlen; ++j )
+        printf( "%02x", hash[j] );
+
+      if( bsdstyle )
+        printf( "\n" );
+      else
+        printf( "  %s\n", argv[i] );
     }
 
-    for( int j = 0; j < outlen; ++j )
-      printf( "%02x", hash[j] );
-
-    printf( " %s\n", argv[i] );
-end1:
-    fclose( f );
-end0: ;
+    if( f != stdin ) fclose( f );
   }
 
   return 0;
