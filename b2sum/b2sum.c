@@ -248,6 +248,7 @@ int main( int argc, char **argv )
 {
   blake2fn blake2_stream = blake2b_stream;
   size_t outlen   = BLAKE2B_OUTBYTES;
+  const char *algorithm = "BLAKE2b";
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
   bool bsdstyle = false;
   int c;
@@ -272,21 +273,25 @@ int main( int argc, char **argv )
       {
         blake2_stream = blake2b_stream;
         outlen = BLAKE2B_OUTBYTES;
+        algorithm = "BLAKE2b";
       }
       else if ( 0 == strcmp( optarg, "blake2s" ) )
       {
         blake2_stream = blake2s_stream;
         outlen = BLAKE2S_OUTBYTES;
+        algorithm = "BLAKE2s";
       }
       else if ( 0 == strcmp( optarg, "blake2bp" ) )
       {
         blake2_stream = blake2bp_stream;
         outlen = BLAKE2B_OUTBYTES;
+        algorithm = "BLAKE2bp";
       }
       else if ( 0 == strcmp( optarg, "blake2sp" ) )
       {
         blake2_stream = blake2sp_stream;
         outlen = BLAKE2S_OUTBYTES;
+        algorithm = "BLAKE2sp";
       }
       else
       {
@@ -334,11 +339,7 @@ int main( int argc, char **argv )
     {
       if( bsdstyle )
       {
-        if( blake2_stream == blake2b_stream ) printf( "BLAKE2b" );
-        else if( blake2_stream == blake2bp_stream ) printf( "BLAKE2bp" );
-        else if( blake2_stream == blake2s_stream ) printf( "BLAKE2s" );
-        else if( blake2_stream == blake2sp_stream ) printf( "BLAKE2sp" );
-        printf( " (%s) = ", argv[i] );
+        printf( "%s (%s) = ", algorithm, argv[i] );
       }
 
       for( size_t j = 0; j < outlen; ++j )
