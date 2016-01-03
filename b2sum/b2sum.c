@@ -25,7 +25,7 @@
 #include "blake2.h"
 
 /* This will help compatibility with coreutils */
-int blake2s_stream( FILE *stream, void *resstream )
+int blake2s_stream( FILE *stream, void *resstream, size_t outbytes )
 {
   int ret = -1;
   size_t sum, n;
@@ -35,7 +35,7 @@ int blake2s_stream( FILE *stream, void *resstream )
 
   if( !buffer ) return -1;
 
-  blake2s_init( S, BLAKE2S_OUTBYTES );
+  blake2s_init( S, outbytes );
 
   while( 1 )
   {
@@ -68,14 +68,14 @@ final_process:;
 
   if( sum > 0 ) blake2s_update( S, buffer, sum );
 
-  blake2s_final( S, resstream, BLAKE2S_OUTBYTES );
+  blake2s_final( S, resstream, outbytes );
   ret = 0;
 cleanup_buffer:
   free( buffer );
   return ret;
 }
 
-int blake2b_stream( FILE *stream, void *resstream )
+int blake2b_stream( FILE *stream, void *resstream, size_t outbytes )
 {
   int ret = -1;
   size_t sum, n;
@@ -85,7 +85,7 @@ int blake2b_stream( FILE *stream, void *resstream )
 
   if( !buffer ) return -1;
 
-  blake2b_init( S, BLAKE2B_OUTBYTES );
+  blake2b_init( S, outbytes );
 
   while( 1 )
   {
@@ -118,14 +118,14 @@ final_process:;
 
   if( sum > 0 ) blake2b_update( S, buffer, sum );
 
-  blake2b_final( S, resstream, BLAKE2B_OUTBYTES );
+  blake2b_final( S, resstream, outbytes );
   ret = 0;
 cleanup_buffer:
   free( buffer );
   return ret;
 }
 
-int blake2sp_stream( FILE *stream, void *resstream )
+int blake2sp_stream( FILE *stream, void *resstream, size_t outbytes )
 {
   int ret = -1;
   size_t sum, n;
@@ -135,7 +135,7 @@ int blake2sp_stream( FILE *stream, void *resstream )
 
   if( !buffer ) return -1;
 
-  blake2sp_init( S, BLAKE2S_OUTBYTES );
+  blake2sp_init( S, outbytes );
 
   while( 1 )
   {
@@ -168,7 +168,7 @@ final_process:;
 
   if( sum > 0 ) blake2sp_update( S, buffer, sum );
 
-  blake2sp_final( S, resstream, BLAKE2S_OUTBYTES );
+  blake2sp_final( S, resstream, outbytes );
   ret = 0;
 cleanup_buffer:
   free( buffer );
@@ -176,7 +176,7 @@ cleanup_buffer:
 }
 
 
-int blake2bp_stream( FILE *stream, void *resstream )
+int blake2bp_stream( FILE *stream, void *resstream, size_t outbytes )
 {
   int ret = -1;
   size_t sum, n;
@@ -186,7 +186,7 @@ int blake2bp_stream( FILE *stream, void *resstream )
 
   if( !buffer ) return -1;
 
-  blake2bp_init( S, BLAKE2B_OUTBYTES );
+  blake2bp_init( S, outbytes );
 
   while( 1 )
   {
@@ -219,14 +219,14 @@ final_process:;
 
   if( sum > 0 ) blake2bp_update( S, buffer, sum );
 
-  blake2bp_final( S, resstream, BLAKE2B_OUTBYTES );
+  blake2bp_final( S, resstream, outbytes );
   ret = 0;
 cleanup_buffer:
   free( buffer );
   return ret;
 }
 
-typedef int ( *blake2fn )( FILE *, void * );
+typedef int ( *blake2fn )( FILE *, void *, size_t );
 
 
 static void usage( char **argv, int errcode )
@@ -238,6 +238,8 @@ static void usage( char **argv, int errcode )
   fprintf( out, "\n" );
   fprintf( out, "  -a <algo>    hash algorithm (blake2b is default): \n"
                 "               [blake2b|blake2s|blake2bp|blake2sp]\n" );
+  fprintf( out, "  -l <length>  digest length in bits, must not exceed the maximum for\n"
+                "               the selected algorithm and must be a multiple of 8\n" );
   fprintf( out, "  --tag        create a BSD-style checksum\n" );
   fprintf( out, "  --help       display this help and exit\n" );
   exit( errcode );
@@ -247,8 +249,9 @@ static void usage( char **argv, int errcode )
 int main( int argc, char **argv )
 {
   blake2fn blake2_stream = blake2b_stream;
-  size_t outlen   = BLAKE2B_OUTBYTES;
+  size_t maxbytes = BLAKE2B_OUTBYTES;
   const char *algorithm = "BLAKE2b";
+  size_t outbytes = 0;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
   bool bsdstyle = false;
   int c;
@@ -258,13 +261,15 @@ int main( int argc, char **argv )
   {
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
+    char *end = NULL;
+    size_t outbits;
     static struct option long_options[] = {
       { "help",  no_argument, 0,  0  },
       { "tag",   no_argument, 0,  0  },
       { NULL, 0, NULL, 0 }
     };
 
-    c = getopt_long( argc, argv, "a:", long_options, &option_index );
+    c = getopt_long( argc, argv, "a:l:", long_options, &option_index );
     if( c == -1 ) break;
     switch( c )
     {
@@ -272,25 +277,25 @@ int main( int argc, char **argv )
       if( 0 == strcmp( optarg, "blake2b" ) )
       {
         blake2_stream = blake2b_stream;
-        outlen = BLAKE2B_OUTBYTES;
+        maxbytes = BLAKE2B_OUTBYTES;
         algorithm = "BLAKE2b";
       }
       else if ( 0 == strcmp( optarg, "blake2s" ) )
       {
         blake2_stream = blake2s_stream;
-        outlen = BLAKE2S_OUTBYTES;
+        maxbytes = BLAKE2S_OUTBYTES;
         algorithm = "BLAKE2s";
       }
       else if ( 0 == strcmp( optarg, "blake2bp" ) )
       {
         blake2_stream = blake2bp_stream;
-        outlen = BLAKE2B_OUTBYTES;
+        maxbytes = BLAKE2B_OUTBYTES;
         algorithm = "BLAKE2bp";
       }
       else if ( 0 == strcmp( optarg, "blake2sp" ) )
       {
         blake2_stream = blake2sp_stream;
-        outlen = BLAKE2S_OUTBYTES;
+        maxbytes = BLAKE2S_OUTBYTES;
         algorithm = "BLAKE2sp";
       }
       else
@@ -299,6 +304,16 @@ int main( int argc, char **argv )
         usage( argv, 111 );
       }
 
+      break;
+
+    case 'l':
+      outbits = strtoul(optarg, &end, 10);
+      if( !end || *end != '\0' || outbits % 8 )
+      {
+        printf( "Invalid length argument: `%s'\n", optarg);
+        usage( argv, 111 );
+      }
+      outbytes = outbits / 8;
       break;
 
     case 0:
@@ -313,6 +328,15 @@ int main( int argc, char **argv )
       break;
     }
   }
+
+  if(outbytes > maxbytes)
+  {
+    printf( "Invalid length argument: %zu\n", outbytes * 8 );
+    printf( "Maximum digest length for %s is %zu\n", algorithm, maxbytes * 8 );
+    usage( argv, 111 );
+  }
+  else if( outbytes == 0 )
+    outbytes = maxbytes;
 
   if( optind == argc )
     argv[argc++] = (char *) "-";
@@ -331,7 +355,7 @@ int main( int argc, char **argv )
       continue;
     }
 
-    if( blake2_stream( f, hash ) < 0 )
+    if( blake2_stream( f, hash, outbytes ) < 0 )
     {
       fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
     }
@@ -339,10 +363,13 @@ int main( int argc, char **argv )
     {
       if( bsdstyle )
       {
-        printf( "%s (%s) = ", algorithm, argv[i] );
+        if( outbytes < maxbytes )
+          printf( "%s-%zu (%s) = ", algorithm, outbytes * 8, argv[i] );
+        else
+          printf( "%s (%s) = ", algorithm, argv[i] );
       }
 
-      for( size_t j = 0; j < outlen; ++j )
+      for( size_t j = 0; j < outbytes; ++j )
         printf( "%02x", hash[j] );
 
       if( bsdstyle )
