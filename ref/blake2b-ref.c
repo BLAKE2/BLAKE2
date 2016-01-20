@@ -312,7 +312,7 @@ int blake2b_final( blake2b_state *S, uint8_t *out, uint8_t outlen )
 {
   uint8_t buffer[BLAKE2B_OUTBYTES] = {0};
 
-  if( outlen > BLAKE2B_OUTBYTES )
+  if( out == NULL || outlen == 0 || outlen > BLAKE2B_OUTBYTES )
     return -1;
 
   if( S->buflen > BLAKE2B_BLOCKBYTES )
