@@ -1,0 +1,93 @@
+.Dd February 20, 2016
+.Dt B2SUM 1
+.Os
+.Sh NAME
+.Nm b2sum
+.Nd generate checksums using the BLAKE2 hash function
+.Sh SYNOPSIS
+.Nm
+.Op Fl a Ar algorithm
+.Op Fl l Ar length
+.Op Fl -tag
+.Op Ar file ...
+.Nm
+.Op Fl -help
+.Sh DESCRIPTION
+The
+.Nm
+command generates checksums for files using the BLAKE2 cryptographic
+hash function and writes them to standard output.
+.Pp
+When
+.Op Ar file ...
+is empty or -,
+.Nm
+reads from standard input.
+.Bl -tag -width Ar
+.It Fl a Ar algorithm
+Specify a variant of BLAKE2 to use when generating checksums. The
+variants are listed under the algorithms section, and the default
+is blake2b.
+.It Fl l Ar length
+Specify the digest length in bits. It must not exceed the maximum
+for the variant of BLAKE2 being used, and must be a multiple of 8.
+.It Fl -tag
+Prepend the checksums with
+.Qq "ALGORITHM-NAME (file) =" ,
+a format common on BSD systems.
+.It Fl -help
+Display usage.
+.El
+.Sh ALGORITHMS
+.Bl -tag -width blake2xx
+.It blake2b
+optimized for 64-bit platforms and NEON-enabled ARMs, produces digests
+of any size between 1 and 64 bytes
+.It blake2s
+optimized for 8 to 32-bit platforms, produces digests of any size
+between 1 and 32 bytes
+.It blake2bp
+4-way parallel BLAKE2b
+.It blake2sp
+8-way parallel BLAKE2s
+.El
+.Sh SEE ALSO
+.Xr shasum 1
+.Sh STANDARDS
+.Bl -tag -width "RFC XXXX"
+.It RFC 7693
+The BLAKE2 Cryptographic Hash and Message Authentication Code
+.El
+.Sh AUTHORS
+.Nm
+is part of the
+.Em BLAKE2
+official implementation. BLAKE2 was designed by
+.An -nosplit
+.An "Jean-Philippe Aumasson" ,
+.An "Samuel Neves" ,
+.An "Zooko Wilcox-O'Hearn" , and
+.An "Christian Winnerlein" .
+.Pp
+BLAKE2 is based on the SHA-3 proposal
+.Em BLAKE
+which was designed by
+.An "Jean-Philippe Aumasson" ,
+.An "Luca Henzen" ,
+.An "Willi Meier" , and
+.An "Raphael C.-W. Phan" .
+.Pp
+BLAKE2, like BLAKE, relies on the
+.Em ChaCha20
+stream cipher, designed by
+.An Daniel J. Bernstein .
+.Pp
+A mailing list for BLAKE2 can be subscribed to by sending an empty
+message to
+.Mt info-subscribe@blake2.net .
+.Pp
+The four designers of BLAKE2 can be contacted at
+.Mt contact@blake2.net .
+.Pp
+This manual page was written by
+.Lk https://github.com/Scarletts Scarlett .
