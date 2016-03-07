@@ -300,16 +300,15 @@ int blake2s_update( blake2s_state *S, const uint8_t *in, uint64_t inlen )
   while( inlen > 0 )
   {
     size_t left = S->buflen;
-    size_t fill = 2 * BLAKE2S_BLOCKBYTES - left;
+    size_t fill = BLAKE2S_BLOCKBYTES - left;
 
     if( inlen > fill )
     {
       memcpy( S->buf + left, in, fill ); // Fill buffer
-      S->buflen += fill;
+      S->buflen = BLAKE2S_BLOCKBYTES ;
       blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES );
       blake2s_compress( S, S->buf ); // Compress
-      memcpy( S->buf, S->buf + BLAKE2S_BLOCKBYTES, BLAKE2S_BLOCKBYTES ); // Shift buffer left
-      S->buflen -= BLAKE2S_BLOCKBYTES;
+      S->buflen = 0;
       in += fill;
       inlen -= fill;
     }
@@ -318,7 +317,7 @@ int blake2s_update( blake2s_state *S, const uint8_t *in, uint64_t inlen )
       memcpy( S->buf + left, in, inlen );
       S->buflen += inlen; // Be lazy, do not compress
       in += inlen;
-      inlen -= inlen;
+      inlen = 0;
     }
   }
 
@@ -333,17 +332,9 @@ int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen )
   if( outlen > BLAKE2S_OUTBYTES )
     return -1;
 
-  if( S->buflen > BLAKE2S_BLOCKBYTES )
-  {
-    blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES );
-    blake2s_compress( S, S->buf );
-    S->buflen -= BLAKE2S_BLOCKBYTES;
-    memcpy( S->buf, S->buf + BLAKE2S_BLOCKBYTES, S->buflen );
-  }
-
   blake2s_increment_counter( S, ( uint32_t )S->buflen );
   blake2s_set_lastblock( S );
-  memset( S->buf + S->buflen, 0, 2 * BLAKE2S_BLOCKBYTES - S->buflen ); /* Padding */
+  memset( S->buf + S->buflen, 0, BLAKE2S_BLOCKBYTES - S->buflen ); /* Padding */
   blake2s_compress( S, S->buf );
 
   for( int i = 0; i < 8; ++i ) /* Output full hash to temp buffer */
