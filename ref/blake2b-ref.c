@@ -316,14 +316,6 @@ int blake2b_final( blake2b_state *S, uint8_t *out, uint8_t outlen )
   if( out == NULL || outlen == 0 || outlen > BLAKE2B_OUTBYTES )
     return -1;
 
-  if( S->buflen > BLAKE2B_BLOCKBYTES )
-  {
-    blake2b_increment_counter( S, BLAKE2B_BLOCKBYTES );
-    blake2b_compress( S, S->buf );
-    S->buflen -= BLAKE2B_BLOCKBYTES;
-    memcpy( S->buf, S->buf + BLAKE2B_BLOCKBYTES, S->buflen );
-  }
-
   blake2b_increment_counter( S, S->buflen );
   blake2b_set_lastblock( S );
   memset( S->buf + S->buflen, 0, BLAKE2B_BLOCKBYTES - S->buflen ); /* Padding */
