@@ -44,7 +44,7 @@ extern "C" {
     uint32_t h[8];
     uint32_t t[2];
     uint32_t f[2];
-    uint8_t  buf[2 * BLAKE2S_BLOCKBYTES];
+    uint8_t  buf[BLAKE2S_BLOCKBYTES];
     size_t   buflen;
     uint8_t  last_node;
   } blake2s_state;
@@ -54,7 +54,7 @@ extern "C" {
     uint64_t h[8];
     uint64_t t[2];
     uint64_t f[2];
-    uint8_t  buf[2 * BLAKE2B_BLOCKBYTES];
+    uint8_t  buf[BLAKE2B_BLOCKBYTES];
     size_t   buflen;
     uint8_t  last_node;
   } blake2b_state;
