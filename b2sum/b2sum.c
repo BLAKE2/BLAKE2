@@ -251,9 +251,9 @@ static void usage( char **argv, int errcode )
 int main( int argc, char **argv )
 {
   blake2fn blake2_stream = blake2b_stream;
-  size_t maxbytes = BLAKE2B_OUTBYTES;
+  unsigned long maxbytes = BLAKE2B_OUTBYTES;
   const char *algorithm = "BLAKE2b";
-  size_t outbytes = 0;
+  unsigned long outbytes = 0;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
   bool bsdstyle = false;
   int c;
@@ -264,7 +264,7 @@ int main( int argc, char **argv )
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
     char *end = NULL;
-    size_t outbits;
+    unsigned long outbits;
     static struct option long_options[] = {
       { "help",  no_argument, 0,  0  },
       { "tag",   no_argument, 0,  0  },
@@ -310,7 +310,7 @@ int main( int argc, char **argv )
 
     case 'l':
       outbits = strtoul(optarg, &end, 10);
-      if( !end || *end != '\0' || outbits % 8 )
+      if( !end || *end != '\0' || outbits % 8 != 0)
       {
         printf( "Invalid length argument: `%s'\n", optarg);
         usage( argv, 111 );
@@ -333,8 +333,8 @@ int main( int argc, char **argv )
 
   if(outbytes > maxbytes)
   {
-    printf( "Invalid length argument: %zu\n", outbytes * 8 );
-    printf( "Maximum digest length for %s is %zu\n", algorithm, maxbytes * 8 );
+    printf( "Invalid length argument: %lu\n", outbytes * 8 );
+    printf( "Maximum digest length for %s is %lu\n", algorithm, maxbytes * 8 );
     usage( argv, 111 );
   }
   else if( outbytes == 0 )
@@ -366,7 +366,7 @@ int main( int argc, char **argv )
       if( bsdstyle )
       {
         if( outbytes < maxbytes )
-          printf( "%s-%zu (%s) = ", algorithm, outbytes * 8, argv[i] );
+          printf( "%s-%lu (%s) = ", algorithm, outbytes * 8, argv[i] );
         else
           printf( "%s (%s) = ", algorithm, argv[i] );
       }
