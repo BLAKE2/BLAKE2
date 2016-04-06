@@ -58,6 +58,11 @@ static inline int blake2b_clear_lastnode( blake2b_state *S )
 }
 
 /* Some helper functions, not necessarily useful */
+static inline int blake2b_is_lastblock( const blake2b_state *S )
+{
+  return S->f[0] != 0;
+}
+
 static inline int blake2b_set_lastblock( blake2b_state *S )
 {
   if( S->last_node ) blake2b_set_lastnode( S );
@@ -315,6 +320,9 @@ int blake2b_final( blake2b_state *S, uint8_t *out, uint8_t outlen )
   uint8_t buffer[BLAKE2B_OUTBYTES] = {0};
 
   if( out == NULL || outlen == 0 || outlen > BLAKE2B_OUTBYTES )
+    return -1;
+
+  if( blake2b_is_lastblock( S ) )
     return -1;
 
   if( S->buflen > BLAKE2B_BLOCKBYTES )
