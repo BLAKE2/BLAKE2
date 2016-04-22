@@ -16,8 +16,10 @@ blake2bp:	blake2bp-ref.c blake2b-ref.c
 		$(CC) blake2bp-ref.c blake2b-ref.c -o $@ $(CFLAGS) -DBLAKE2BP_SELFTEST
 
 kat:
-		$(CC) $(CFLAGS) -o genkat genkat.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c
-		./genkat > blake2-kat.h
+		$(CC) $(CFLAGS) -o genkat-c genkat-c.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c
+		$(CC) $(CFLAGS) -g -o genkat-json genkat-json.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c
+		./genkat-c > blake2-kat.h
+		./genkat-json > blake2-kat.json
 
 clean:		
-		rm -rf *.o genkat blake2s blake2b blake2sp blake2bp
+		rm -rf *.o genkat-c genkat-json blake2s blake2b blake2sp blake2bp
