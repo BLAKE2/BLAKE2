@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -pedantic -O3 -march=native
+CFLAGS=-std=c99 -Wall -pedantic -O3 -march=native -Werror=declaration-after-statement
 
 all:		blake2s blake2b blake2sp blake2bp
 

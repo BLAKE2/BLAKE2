@@ -27,7 +27,7 @@
 
 #define PARALLELISM_DEGREE 4
 
-static inline int blake2bp_init_leaf( blake2b_state *S, uint8_t outlen, uint8_t keylen, uint64_t offset )
+BLAKE2_LOCAL_INLINE(int) blake2bp_init_leaf( blake2b_state *S, uint8_t outlen, uint8_t keylen, uint64_t offset )
 {
   blake2b_param P[1];
   P->digest_length = outlen;
@@ -44,7 +44,7 @@ static inline int blake2bp_init_leaf( blake2b_state *S, uint8_t outlen, uint8_t 
   return blake2b_init_param( S, P );
 }
 
-static inline int blake2bp_init_root( blake2b_state *S, uint8_t outlen, uint8_t keylen )
+BLAKE2_LOCAL_INLINE(int) blake2bp_init_root( blake2b_state *S, uint8_t outlen, uint8_t keylen )
 {
   blake2b_param P[1];
   P->digest_length = outlen;
@@ -205,7 +205,7 @@ int blake2bp( uint8_t *out, const void *in, const void *key, uint8_t outlen, uin
   for( size_t i = 0; i < PARALLELISM_DEGREE; ++i )
     if( blake2bp_init_leaf( S[i], outlen, keylen, i ) < 0 ) return -1;
 
-  S[PARALLELISM_DEGREE - 1]->last_node = 1; // mark last node
+  S[PARALLELISM_DEGREE - 1]->last_node = 1; /* mark last node */
 
   if( keylen > 0 )
   {
@@ -253,7 +253,7 @@ int blake2bp( uint8_t *out, const void *in, const void *key, uint8_t outlen, uin
   if( blake2bp_init_root( FS, outlen, keylen ) < 0 )
     return -1;
 
-  FS->last_node = 1; // Mark as last node
+  FS->last_node = 1; /* Mark as last node */
 
   for( size_t i = 0; i < PARALLELISM_DEGREE; ++i )
     blake2b_update( FS, hash[i], BLAKE2B_OUTBYTES );

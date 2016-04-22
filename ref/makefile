@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -pedantic
+CFLAGS=-std=c99 -Wall -pedantic -Werror=declaration-after-statement
 
 all:		blake2s blake2b blake2sp blake2bp
 
