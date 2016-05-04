@@ -25,7 +25,7 @@ namespace Blake2Sharp
 			get { return OutputSizeInBytes * 8; }
 			set
 			{
-				if (value % 8 == 0)
+				if (value % 8 != 0)
 					throw new ArgumentException("Output size must be a multiple of 8 bits");
 				OutputSizeInBytes = value / 8;
 			}
