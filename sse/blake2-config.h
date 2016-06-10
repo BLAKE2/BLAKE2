@@ -16,7 +16,7 @@
 #ifndef __BLAKE2_CONFIG_H__
 #define __BLAKE2_CONFIG_H__
 
-// These don't work everywhere
+/* These don't work everywhere */
 #if defined(__SSE2__) || defined(__x86_64__) || defined(__amd64__)
 #define HAVE_SSE2
 #endif

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -pedantic -I../testvectors
+CFLAGS=-O2 -Wall -I../testvectors
 
 all:		blake2s blake2b blake2sp blake2bp
 
