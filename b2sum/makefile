@@ -2,8 +2,8 @@ PROG=b2sum
 PREFIX?=/usr/local
 MANDIR?=$(PREFIX)/man
 CC?=gcc
-CFLAGS?=-O3 -march=native -static -Werror=declaration-after-statement
-CFLAGS+=-std=c99 -I../sse -fopenmp
+CFLAGS?=-O3 -march=native -static
+CFLAGS+=-I../sse -fopenmp
 LIBS=
 #FILES=b2sum.c ../ref/blake2b-ref.c ../ref/blake2s-ref.c ../ref/blake2bp-ref.c ../ref/blake2sp-ref.c 
 FILES=b2sum.c ../sse/blake2b.c ../sse/blake2s.c ../sse/blake2bp.c ../sse/blake2sp.c 

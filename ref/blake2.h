@@ -19,12 +19,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef BLAKE2_NO_INLINE
-#define BLAKE2_LOCAL_INLINE(type) static type
-#endif
-
-#ifndef BLAKE2_LOCAL_INLINE
-#define BLAKE2_LOCAL_INLINE(type) static inline type
+#if defined(_MSC_VER)
+#define BLAKE2_PACKED(x) __pragma(pack(push, 1)) x __pragma(pack(pop))
+#else
+#define BLAKE2_PACKED(x) x __attribute__((packed))
 #endif
 
 #if defined(__cplusplus)
@@ -86,23 +84,24 @@ extern "C" {
   } blake2bp_state;
 
 
-#pragma pack(push, 1)
-  typedef struct __blake2s_param
+  BLAKE2_PACKED(struct __blake2s_param
   {
     uint8_t  digest_length; /* 1 */
     uint8_t  key_length;    /* 2 */
     uint8_t  fanout;        /* 3 */
     uint8_t  depth;         /* 4 */
     uint32_t leaf_length;   /* 8 */
-    uint8_t  node_offset[6];// 14
+    uint8_t  node_offset[6];/* 14 */
     uint8_t  node_depth;    /* 15 */
     uint8_t  inner_length;  /* 16 */
     /* uint8_t  reserved[0]; */
     uint8_t  salt[BLAKE2S_SALTBYTES]; /* 24 */
     uint8_t  personal[BLAKE2S_PERSONALBYTES];  /* 32 */
-  } blake2s_param;
+  });
 
-  typedef struct __blake2b_param
+  typedef struct __blake2s_param blake2s_param;
+
+  BLAKE2_PACKED(struct __blake2b_param
   {
     uint8_t  digest_length; /* 1 */
     uint8_t  key_length;    /* 2 */
@@ -115,8 +114,15 @@ extern "C" {
     uint8_t  reserved[14];  /* 32 */
     uint8_t  salt[BLAKE2B_SALTBYTES]; /* 48 */
     uint8_t  personal[BLAKE2B_PERSONALBYTES];  /* 64 */
-  } blake2b_param;
-#pragma pack(pop)
+  });
+
+  typedef struct __blake2b_param blake2b_param;
+
+  /* Padded structs result in a compile-time error */
+  enum {
+    BLAKE2_DUMMY_1 = 1/(sizeof(blake2s_param) == BLAKE2S_OUTBYTES),
+    BLAKE2_DUMMY_2 = 1/(sizeof(blake2b_param) == BLAKE2B_OUTBYTES)
+  };
 
   /* Streaming API */
   int blake2s_init( blake2s_state *S, const uint8_t outlen );
@@ -148,10 +154,8 @@ extern "C" {
   int blake2sp( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen );
   int blake2bp( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen );
 
-  static inline int blake2( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen )
-  {
-    return blake2b( out, in, key, outlen, inlen, keylen );
-  }
+  /* This is simply an alias for blake2b */
+  int blake2( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen );
 
 #if defined(__cplusplus)
 }

@@ -1,5 +1,5 @@
 /*
-   BLAKE2 reference source code package - optimized C implementations
+   BLAKE2 reference source code package - reference C implementations
   
    Copyright 2012, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
    terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 
-BLAKE2_LOCAL_INLINE(uint32_t) load32( const void *src )
+static uint32_t load32( const void *src )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
   uint32_t w;
@@ -27,15 +27,14 @@ BLAKE2_LOCAL_INLINE(uint32_t) load32( const void *src )
   return w;
 #else
   const uint8_t *p = ( const uint8_t * )src;
-  uint32_t w = *p++;
-  w |= ( uint32_t )( *p++ ) <<  8;
-  w |= ( uint32_t )( *p++ ) << 16;
-  w |= ( uint32_t )( *p++ ) << 24;
-  return w;
+  return (( uint32_t )( p[0] ) <<  0) |
+         (( uint32_t )( p[1] ) <<  8) |
+         (( uint32_t )( p[2] ) << 16) |
+         (( uint32_t )( p[3] ) << 24) ;
 #endif
 }
 
-BLAKE2_LOCAL_INLINE(uint64_t) load64( const void *src )
+static uint64_t load64( const void *src )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
   uint64_t w;
@@ -43,93 +42,91 @@ BLAKE2_LOCAL_INLINE(uint64_t) load64( const void *src )
   return w;
 #else
   const uint8_t *p = ( const uint8_t * )src;
-  uint64_t w = *p++;
-  w |= ( uint64_t )( *p++ ) <<  8;
-  w |= ( uint64_t )( *p++ ) << 16;
-  w |= ( uint64_t )( *p++ ) << 24;
-  w |= ( uint64_t )( *p++ ) << 32;
-  w |= ( uint64_t )( *p++ ) << 40;
-  w |= ( uint64_t )( *p++ ) << 48;
-  w |= ( uint64_t )( *p++ ) << 56;
-  return w;
+  return (( uint64_t )( p[0] ) <<  0) |
+         (( uint64_t )( p[1] ) <<  8) |
+         (( uint64_t )( p[2] ) << 16) |
+         (( uint64_t )( p[3] ) << 24) |
+         (( uint64_t )( p[4] ) << 32) |
+         (( uint64_t )( p[5] ) << 40) |
+         (( uint64_t )( p[6] ) << 48) |
+         (( uint64_t )( p[7] ) << 56) ;
 #endif
 }
 
-BLAKE2_LOCAL_INLINE(void) store32( void *dst, uint32_t w )
+static void store32( void *dst, uint32_t w )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
   memcpy(dst, &w, sizeof w);
 #else
   uint8_t *p = ( uint8_t * )dst;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w;
+  p[0] = (uint8_t)(w >>  0);
+  p[1] = (uint8_t)(w >>  8);
+  p[2] = (uint8_t)(w >> 16);
+  p[3] = (uint8_t)(w >> 24);
 #endif
 }
 
-BLAKE2_LOCAL_INLINE(void) store64( void *dst, uint64_t w )
+static void store64( void *dst, uint64_t w )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
   memcpy(dst, &w, sizeof w);
 #else
   uint8_t *p = ( uint8_t * )dst;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w;
+  p[0] = (uint8_t)(w >>  0);
+  p[1] = (uint8_t)(w >>  8);
+  p[2] = (uint8_t)(w >> 16);
+  p[3] = (uint8_t)(w >> 24);
+  p[4] = (uint8_t)(w >> 32);
+  p[5] = (uint8_t)(w >> 40);
+  p[6] = (uint8_t)(w >> 48);
+  p[7] = (uint8_t)(w >> 56);
 #endif
 }
 
-BLAKE2_LOCAL_INLINE(uint64_t) load48( const void *src )
+static uint64_t load48( const void *src )
 {
   const uint8_t *p = ( const uint8_t * )src;
-  uint64_t w = *p++;
-  w |= ( uint64_t )( *p++ ) <<  8;
-  w |= ( uint64_t )( *p++ ) << 16;
-  w |= ( uint64_t )( *p++ ) << 24;
-  w |= ( uint64_t )( *p++ ) << 32;
-  w |= ( uint64_t )( *p++ ) << 40;
-  return w;
+  return (( uint64_t )( p[0] ) <<  0) |
+         (( uint64_t )( p[1] ) <<  8) |
+         (( uint64_t )( p[2] ) << 16) |
+         (( uint64_t )( p[3] ) << 24) |
+         (( uint64_t )( p[4] ) << 32) |
+         (( uint64_t )( p[5] ) << 40) ;
 }
 
-BLAKE2_LOCAL_INLINE(void) store48( void *dst, uint64_t w )
+static void store48( void *dst, uint64_t w )
 {
   uint8_t *p = ( uint8_t * )dst;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w; w >>= 8;
-  *p++ = ( uint8_t )w;
+  p[0] = (uint8_t)(w >>  0);
+  p[1] = (uint8_t)(w >>  8);
+  p[2] = (uint8_t)(w >> 16);
+  p[3] = (uint8_t)(w >> 24);
+  p[4] = (uint8_t)(w >> 32);
+  p[5] = (uint8_t)(w >> 40);
 }
 
-BLAKE2_LOCAL_INLINE(uint32_t) rotl32( const uint32_t w, const unsigned c )
+static uint32_t rotl32( const uint32_t w, const unsigned c )
 {
   return ( w << c ) | ( w >> ( 32 - c ) );
 }
 
-BLAKE2_LOCAL_INLINE(uint64_t) rotl64( const uint64_t w, const unsigned c )
+static uint64_t rotl64( const uint64_t w, const unsigned c )
 {
   return ( w << c ) | ( w >> ( 64 - c ) );
 }
 
-BLAKE2_LOCAL_INLINE(uint32_t) rotr32( const uint32_t w, const unsigned c )
+static uint32_t rotr32( const uint32_t w, const unsigned c )
 {
   return ( w >> c ) | ( w << ( 32 - c ) );
 }
 
-BLAKE2_LOCAL_INLINE(uint64_t) rotr64( const uint64_t w, const unsigned c )
+static uint64_t rotr64( const uint64_t w, const unsigned c )
 {
   return ( w >> c ) | ( w << ( 64 - c ) );
 }
 
 /* prevents compiler optimizing out memset() */
-BLAKE2_LOCAL_INLINE(void) secure_zero_memory(void *v, size_t n)
+static void secure_zero_memory(void *v, size_t n)
 {
   static void *(*const volatile memset_v)(void *, int, size_t) = &memset;
   memset_v(v, 0, n);
