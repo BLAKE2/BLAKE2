@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -pedantic -O3 -march=native
+CFLAGS=-std=c99 -Wall -pedantic -O3 -march=native -I../testvectors
 
 all:		blake2s blake2b blake2sp blake2bp
 
@@ -21,5 +21,5 @@ kat:
 		./genkat-c > blake2-kat.h
 		./genkat-json > blake2-kat.json
 
-clean:		
+clean:
 		rm -rf *.o blake2s blake2b blake2sp blake2bp genkat-c genkat-json
