@@ -61,7 +61,7 @@ namespace Blake2Sharp
 				if (config.Personalization.Length != 16)
 					throw new ArgumentException("config.Personalization has invalid length");
 				rawConfig[6] = Blake2BCore.BytesToUInt64(config.Personalization, 0);
-				rawConfig[6] = Blake2BCore.BytesToUInt64(config.Personalization, 8);
+				rawConfig[7] = Blake2BCore.BytesToUInt64(config.Personalization, 8);
 			}
 
 			return rawConfig;
