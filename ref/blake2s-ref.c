@@ -40,25 +40,25 @@ static const uint8_t blake2s_sigma[10][16] =
   { 10,  2,  8,  4,  7,  6,  1,  5, 15, 11,  9, 14,  3, 12, 13 , 0 } ,
 };
 
-static inline int blake2s_set_lastnode( blake2s_state *S )
+BLAKE2_LOCAL_INLINE(int) blake2s_set_lastnode( blake2s_state *S )
 {
   S->f[1] = -1;
   return 0;
 }
 
-static inline int blake2s_clear_lastnode( blake2s_state *S )
+BLAKE2_LOCAL_INLINE(int) blake2s_clear_lastnode( blake2s_state *S )
 {
   S->f[1] = 0;
   return 0;
 }
 
 /* Some helper functions, not necessarily useful */
-static inline int blake2s_is_lastblock( const blake2s_state *S )
+BLAKE2_LOCAL_INLINE(int) blake2s_is_lastblock( const blake2s_state *S )
 {
   return S->f[0] != 0;
 }
 
-static inline int blake2s_set_lastblock( blake2s_state *S )
+BLAKE2_LOCAL_INLINE(int) blake2s_set_lastblock( blake2s_state *S )
 {
   if( S->last_node ) blake2s_set_lastnode( S );
 
@@ -66,7 +66,7 @@ static inline int blake2s_set_lastblock( blake2s_state *S )
   return 0;
 }
 
-static inline int blake2s_clear_lastblock( blake2s_state *S )
+BLAKE2_LOCAL_INLINE(int) blake2s_clear_lastblock( blake2s_state *S )
 {
   if( S->last_node ) blake2s_clear_lastnode( S );
 
@@ -74,69 +74,69 @@ static inline int blake2s_clear_lastblock( blake2s_state *S )
   return 0;
 }
 
-static inline int blake2s_increment_counter( blake2s_state *S, const uint32_t inc )
+BLAKE2_LOCAL_INLINE(int) blake2s_increment_counter( blake2s_state *S, const uint32_t inc )
 {
   S->t[0] += inc;
   S->t[1] += ( S->t[0] < inc );
   return 0;
 }
 
-// Parameter-related functions
-static inline int blake2s_param_set_digest_length( blake2s_param *P, const uint8_t digest_length )
+/* Parameter-related functions */
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_digest_length( blake2s_param *P, const uint8_t digest_length )
 {
   P->digest_length = digest_length;
   return 0;
 }
 
-static inline int blake2s_param_set_fanout( blake2s_param *P, const uint8_t fanout )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_fanout( blake2s_param *P, const uint8_t fanout )
 {
   P->fanout = fanout;
   return 0;
 }
 
-static inline int blake2s_param_set_max_depth( blake2s_param *P, const uint8_t depth )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_max_depth( blake2s_param *P, const uint8_t depth )
 {
   P->depth = depth;
   return 0;
 }
 
-static inline int blake2s_param_set_leaf_length( blake2s_param *P, const uint32_t leaf_length )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_leaf_length( blake2s_param *P, const uint32_t leaf_length )
 {
   store32( &P->leaf_length, leaf_length );
   return 0;
 }
 
-static inline int blake2s_param_set_node_offset( blake2s_param *P, const uint64_t node_offset )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_node_offset( blake2s_param *P, const uint64_t node_offset )
 {
   store48( P->node_offset, node_offset );
   return 0;
 }
 
-static inline int blake2s_param_set_node_depth( blake2s_param *P, const uint8_t node_depth )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_node_depth( blake2s_param *P, const uint8_t node_depth )
 {
   P->node_depth = node_depth;
   return 0;
 }
 
-static inline int blake2s_param_set_inner_length( blake2s_param *P, const uint8_t inner_length )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_inner_length( blake2s_param *P, const uint8_t inner_length )
 {
   P->inner_length = inner_length;
   return 0;
 }
 
-static inline int blake2s_param_set_salt( blake2s_param *P, const uint8_t salt[BLAKE2S_SALTBYTES] )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_salt( blake2s_param *P, const uint8_t salt[BLAKE2S_SALTBYTES] )
 {
   memcpy( P->salt, salt, BLAKE2S_SALTBYTES );
   return 0;
 }
 
-static inline int blake2s_param_set_personal( blake2s_param *P, const uint8_t personal[BLAKE2S_PERSONALBYTES] )
+BLAKE2_LOCAL_INLINE(int) blake2s_param_set_personal( blake2s_param *P, const uint8_t personal[BLAKE2S_PERSONALBYTES] )
 {
   memcpy( P->personal, personal, BLAKE2S_PERSONALBYTES );
   return 0;
 }
 
-static inline int blake2s_init0( blake2s_state *S )
+BLAKE2_LOCAL_INLINE(int) blake2s_init0( blake2s_state *S )
 {
   memset( S, 0, sizeof( blake2s_state ) );
 
@@ -148,8 +148,9 @@ static inline int blake2s_init0( blake2s_state *S )
 /* init2 xors IV with input parameter block */
 int blake2s_init_param( blake2s_state *S, const blake2s_param *P )
 {
-  blake2s_init0( S );
   const uint32_t *p = ( const uint32_t * )( P );
+
+  blake2s_init0( S );
 
   /* IV XOR ParamBlock */
   for( size_t i = 0; i < 8; ++i )
@@ -159,7 +160,7 @@ int blake2s_init_param( blake2s_state *S, const blake2s_param *P )
 }
 
 
-// Sequential blake2s initialization
+/* Sequential blake2s initialization */
 int blake2s_init( blake2s_state *S, const uint8_t outlen )
 {
   blake2s_param P[1];
@@ -175,7 +176,7 @@ int blake2s_init( blake2s_state *S, const uint8_t outlen )
   store48( &P->node_offset, 0 );
   P->node_depth    = 0;
   P->inner_length  = 0;
-  // memset(P->reserved, 0, sizeof(P->reserved) );
+  /* memset(P->reserved, 0, sizeof(P->reserved) ); */
   memset( P->salt,     0, sizeof( P->salt ) );
   memset( P->personal, 0, sizeof( P->personal ) );
   return blake2s_init_param( S, P );
@@ -197,7 +198,7 @@ int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, c
   store48( &P->node_offset, 0 );
   P->node_depth    = 0;
   P->inner_length  = 0;
-  // memset(P->reserved, 0, sizeof(P->reserved) );
+  /* memset(P->reserved, 0, sizeof(P->reserved) ); */
   memset( P->salt,     0, sizeof( P->salt ) );
   memset( P->personal, 0, sizeof( P->personal ) );
 
@@ -283,19 +284,19 @@ int blake2s_update( blake2s_state *S, const uint8_t *in, uint64_t inlen )
 
     if( inlen > fill )
     {
-      memcpy( S->buf + left, in, fill ); // Fill buffer
+      memcpy( S->buf + left, in, fill ); /* Fill buffer */
       S->buflen += fill;
       blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES );
-      blake2s_compress( S, S->buf ); // Compress
-      memcpy( S->buf, S->buf + BLAKE2S_BLOCKBYTES, BLAKE2S_BLOCKBYTES ); // Shift buffer left
+      blake2s_compress( S, S->buf ); /* Compress */
+      memcpy( S->buf, S->buf + BLAKE2S_BLOCKBYTES, BLAKE2S_BLOCKBYTES ); /* Shift buffer left */
       S->buflen -= BLAKE2S_BLOCKBYTES;
       in += fill;
       inlen -= fill;
     }
-    else // inlen <= fill
+    else /* inlen <= fill */
     {
       memcpy( S->buf + left, in, inlen );
-      S->buflen += inlen; // Be lazy, do not compress
+      S->buflen += inlen; /* Be lazy, do not compress */
       in += inlen;
       inlen -= inlen;
     }

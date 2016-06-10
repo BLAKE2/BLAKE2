@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -pedantic -O3 -march=native -I../testvectors
+CFLAGS=-Wall -O3 -march=native -I../testvectors
 
 all:		blake2s blake2b blake2sp blake2bp
 
