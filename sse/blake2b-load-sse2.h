@@ -12,9 +12,8 @@
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
-#pragma once
-#ifndef __BLAKE2B_LOAD_SSE2_H__
-#define __BLAKE2B_LOAD_SSE2_H__
+#ifndef BLAKE2B_LOAD_SSE2_H
+#define BLAKE2B_LOAD_SSE2_H
 
 #define LOAD_MSG_0_1(b0, b1) b0 = _mm_set_epi64x(m2, m0); b1 = _mm_set_epi64x(m6, m4)
 #define LOAD_MSG_0_2(b0, b1) b0 = _mm_set_epi64x(m3, m1); b1 = _mm_set_epi64x(m7, m5)

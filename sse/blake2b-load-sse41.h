@@ -12,9 +12,8 @@
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
-#pragma once
-#ifndef __BLAKE2B_LOAD_SSE41_H__
-#define __BLAKE2B_LOAD_SSE41_H__
+#ifndef BLAKE2B_LOAD_SSE41_H
+#define BLAKE2B_LOAD_SSE41_H
 
 #define LOAD_MSG_0_1(b0, b1) \
 do \

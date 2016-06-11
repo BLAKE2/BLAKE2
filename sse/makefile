@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -O3 -march=native -I../testvectors
 
-all:		blake2s blake2b blake2sp blake2bp
+all:		blake2s blake2b blake2sp blake2bp check
 
 blake2s:	blake2s.c
 		$(CC) blake2s.c -o $@ $(CFLAGS) -DBLAKE2S_SELFTEST
@@ -14,6 +14,12 @@ blake2sp:	blake2sp.c blake2s.c
 
 blake2bp:	blake2bp.c blake2b.c
 		$(CC) blake2bp.c blake2b.c -o $@ $(CFLAGS) -DBLAKE2BP_SELFTEST
+
+check: blake2s blake2b blake2sp blake2bp
+	./blake2s
+	./blake2b
+	./blake2sp
+	./blake2bp
 
 kat:
 		$(CC) $(CFLAGS) -o genkat-c genkat-c.c blake2b.c blake2s.c blake2sp.c blake2bp.c

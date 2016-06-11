@@ -12,9 +12,8 @@
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
-#pragma once
-#ifndef __BLAKE2B_ROUND_H__
-#define __BLAKE2B_ROUND_H__
+#ifndef BLAKE2B_ROUND_H
+#define BLAKE2B_ROUND_H
 
 #define LOADU(p)  _mm_loadu_si128( (const __m128i *)(p) )
 #define STOREU(p,r) _mm_storeu_si128((__m128i *)(p), r)

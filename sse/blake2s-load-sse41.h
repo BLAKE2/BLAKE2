@@ -12,9 +12,8 @@
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
-#pragma once
-#ifndef __BLAKE2S_LOAD_SSE41_H__
-#define __BLAKE2S_LOAD_SSE41_H__
+#ifndef BLAKE2S_LOAD_SSE41_H
+#define BLAKE2S_LOAD_SSE41_H
 
 #define LOAD_MSG_0_1(buf) \
 buf = TOI(_mm_shuffle_ps(TOF(m0), TOF(m1), _MM_SHUFFLE(2,0,2,0)));

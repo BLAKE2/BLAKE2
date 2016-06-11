@@ -429,16 +429,16 @@ int crypto_hash( unsigned char *out, unsigned char *in, unsigned long long inlen
 int main( int argc, char **argv )
 {
   uint8_t key[BLAKE2B_KEYBYTES];
-  uint8_t buf[KAT_LENGTH];
+  uint8_t buf[BLAKE2_KAT_LENGTH];
   size_t i;
 
   for( i = 0; i < BLAKE2B_KEYBYTES; ++i )
     key[i] = ( uint8_t )i;
 
-  for( i = 0; i < KAT_LENGTH; ++i )
+  for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
     buf[i] = ( uint8_t )i;
 
-  for( i = 0; i < KAT_LENGTH; ++i )
+  for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
   {
     uint8_t hash[BLAKE2B_OUTBYTES];
     blake2b( hash, buf, key, BLAKE2B_OUTBYTES, i, BLAKE2B_KEYBYTES );

@@ -163,7 +163,7 @@ int blake2s_init_param( blake2s_state *S, const blake2s_param *P )
 
 
 /* Sequential blake2s initialization */
-int blake2s_init( blake2s_state *S, const uint8_t outlen )
+int blake2s_init( blake2s_state *S, size_t outlen )
 {
   blake2s_param P[1];
 
@@ -184,7 +184,7 @@ int blake2s_init( blake2s_state *S, const uint8_t outlen )
   return blake2s_init_param( S, P );
 }
 
-int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, const uint8_t keylen )
+int blake2s_init_key( blake2s_state *S, size_t outlen, const void *key, size_t keylen )
 {
   blake2s_param P[1];
 
@@ -192,8 +192,8 @@ int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, c
 
   if ( !key || !keylen || keylen > BLAKE2S_KEYBYTES ) return -1;
 
-  P->digest_length = outlen;
-  P->key_length    = keylen;
+  P->digest_length = (uint8_t)outlen;
+  P->key_length    = (uint8_t)keylen;
   P->fanout        = 1;
   P->depth         = 1;
   store32( &P->leaf_length, 0 );
@@ -216,39 +216,20 @@ int blake2s_init_key( blake2s_state *S, const uint8_t outlen, const void *key, c
   return 0;
 }
 
-static int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2S_BLOCKBYTES] )
-{
-  uint32_t m[16];
-  uint32_t v[16];
-  size_t i;
-
-  for( i = 0; i < 16; ++i )
-    m[i] = load32( block + i * sizeof( m[i] ) );
-
-  for( i = 0; i < 8; ++i )
-    v[i] = S->h[i];
-
-  v[ 8] = blake2s_IV[0];
-  v[ 9] = blake2s_IV[1];
-  v[10] = blake2s_IV[2];
-  v[11] = blake2s_IV[3];
-  v[12] = S->t[0] ^ blake2s_IV[4];
-  v[13] = S->t[1] ^ blake2s_IV[5];
-  v[14] = S->f[0] ^ blake2s_IV[6];
-  v[15] = S->f[1] ^ blake2s_IV[7];
-#define G(r,i,a,b,c,d) \
-  do { \
+#define G(r,i,a,b,c,d)                      \
+  do {                                      \
     a = a + b + m[blake2s_sigma[r][2*i+0]]; \
-    d = rotr32(d ^ a, 16); \
-    c = c + d; \
-    b = rotr32(b ^ c, 12); \
+    d = rotr32(d ^ a, 16);                  \
+    c = c + d;                              \
+    b = rotr32(b ^ c, 12);                  \
     a = a + b + m[blake2s_sigma[r][2*i+1]]; \
-    d = rotr32(d ^ a, 8); \
-    c = c + d; \
-    b = rotr32(b ^ c, 7); \
+    d = rotr32(d ^ a, 8);                   \
+    c = c + d;                              \
+    b = rotr32(b ^ c, 7);                   \
   } while(0)
-#define ROUND(r)  \
-  do { \
+
+#define ROUND(r)                    \
+  do {                              \
     G(r,0,v[ 0],v[ 4],v[ 8],v[12]); \
     G(r,1,v[ 1],v[ 5],v[ 9],v[13]); \
     G(r,2,v[ 2],v[ 6],v[10],v[14]); \
@@ -258,6 +239,30 @@ static int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2S_BLOCK
     G(r,6,v[ 2],v[ 7],v[ 8],v[13]); \
     G(r,7,v[ 3],v[ 4],v[ 9],v[14]); \
   } while(0)
+
+static void blake2s_compress( blake2s_state *S, const uint8_t in[BLAKE2S_BLOCKBYTES] )
+{
+  uint32_t m[16];
+  uint32_t v[16];
+  size_t i;
+
+  for( i = 0; i < 16; ++i ) {
+    m[i] = load32( in + i * sizeof( m[i] ) );
+  }
+
+  for( i = 0; i < 8; ++i ) {
+    v[i] = S->h[i];
+  }
+
+  v[ 8] = blake2s_IV[0];
+  v[ 9] = blake2s_IV[1];
+  v[10] = blake2s_IV[2];
+  v[11] = blake2s_IV[3];
+  v[12] = S->t[0] ^ blake2s_IV[4];
+  v[13] = S->t[1] ^ blake2s_IV[5];
+  v[14] = S->f[0] ^ blake2s_IV[6];
+  v[15] = S->f[1] ^ blake2s_IV[7];
+
   ROUND( 0 );
   ROUND( 1 );
   ROUND( 2 );
@@ -269,46 +274,42 @@ static int blake2s_compress( blake2s_state *S, const uint8_t block[BLAKE2S_BLOCK
   ROUND( 8 );
   ROUND( 9 );
 
-  for( i = 0; i < 8; ++i )
+  for( i = 0; i < 8; ++i ) {
     S->h[i] = S->h[i] ^ v[i] ^ v[i + 8];
+  }
+}
 
 #undef G
 #undef ROUND
-  return 0;
-}
 
-
-int blake2s_update( blake2s_state *S, const uint8_t *in, uint64_t inlen )
+int blake2s_update( blake2s_state *S, const void *pin, size_t inlen )
 {
-  while( inlen > 0 )
+  const unsigned char * in = (const unsigned char *)pin;
+  if( inlen > 0 )
   {
     size_t left = S->buflen;
-    size_t fill = 2 * BLAKE2S_BLOCKBYTES - left;
-
+    size_t fill = BLAKE2S_BLOCKBYTES - left;
     if( inlen > fill )
     {
+      S->buflen = 0;
       memcpy( S->buf + left, in, fill ); /* Fill buffer */
-      S->buflen += fill;
       blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES );
       blake2s_compress( S, S->buf ); /* Compress */
-      memcpy( S->buf, S->buf + BLAKE2S_BLOCKBYTES, BLAKE2S_BLOCKBYTES ); /* Shift buffer left */
-      S->buflen -= BLAKE2S_BLOCKBYTES;
-      in += fill;
-      inlen -= fill;
+      in += fill; inlen -= fill;
+      while(inlen > BLAKE2S_BLOCKBYTES) {
+        blake2s_increment_counter(S, BLAKE2S_BLOCKBYTES);
+        blake2s_compress( S, in );
+        in += BLAKE2S_BLOCKBYTES;
+        inlen -= BLAKE2S_BLOCKBYTES;
+      }
     }
-    else /* inlen <= fill */
-    {
-      memcpy( S->buf + left, in, inlen );
-      S->buflen += inlen; /* Be lazy, do not compress */
-      in += inlen;
-      inlen -= inlen;
-    }
+    memcpy( S->buf + S->buflen, in, inlen );
+    S->buflen += (uint32_t)inlen;
   }
-
   return 0;
 }
 
-int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen )
+int blake2s_final( blake2s_state *S, void *out, size_t outlen )
 {
   uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
   int i;
@@ -319,28 +320,20 @@ int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen )
   if( blake2s_is_lastblock( S ) )
     return -1;
 
-
-  if( S->buflen > BLAKE2S_BLOCKBYTES )
-  {
-    blake2s_increment_counter( S, BLAKE2S_BLOCKBYTES );
-    blake2s_compress( S, S->buf );
-    S->buflen -= BLAKE2S_BLOCKBYTES;
-    memcpy( S->buf, S->buf + BLAKE2S_BLOCKBYTES, S->buflen );
-  }
-
   blake2s_increment_counter( S, ( uint32_t )S->buflen );
   blake2s_set_lastblock( S );
-  memset( S->buf + S->buflen, 0, 2 * BLAKE2S_BLOCKBYTES - S->buflen ); /* Padding */
+  memset( S->buf + S->buflen, 0, BLAKE2S_BLOCKBYTES - S->buflen ); /* Padding */
   blake2s_compress( S, S->buf );
 
   for( i = 0; i < 8; ++i ) /* Output full hash to temp buffer */
     store32( buffer + sizeof( S->h[i] ) * i, S->h[i] );
 
   memcpy( out, buffer, outlen );
+  secure_zero_memory(buffer, sizeof(buffer));
   return 0;
 }
 
-int blake2s( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen )
+int blake2s( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen )
 {
   blake2s_state S[1];
 
@@ -372,7 +365,7 @@ int blake2s( uint8_t *out, const void *in, const void *key, const uint8_t outlen
 #if defined(SUPERCOP)
 int crypto_hash( unsigned char *out, unsigned char *in, unsigned long long inlen )
 {
-  return blake2s( out, in, NULL, BLAKE2S_OUTBYTES, inlen, 0 );
+  return blake2s( out, BLAKE2S_OUTBYTES in, inlen, NULL, 0 );
 }
 #endif
 
@@ -382,19 +375,19 @@ int crypto_hash( unsigned char *out, unsigned char *in, unsigned long long inlen
 int main( void )
 {
   uint8_t key[BLAKE2S_KEYBYTES];
-  uint8_t buf[KAT_LENGTH];
+  uint8_t buf[BLAKE2_KAT_LENGTH];
   size_t i;
 
   for( i = 0; i < BLAKE2S_KEYBYTES; ++i )
     key[i] = ( uint8_t )i;
 
-  for( i = 0; i < KAT_LENGTH; ++i )
+  for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
     buf[i] = ( uint8_t )i;
 
-  for( i = 0; i < KAT_LENGTH; ++i )
+  for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
   {
     uint8_t hash[BLAKE2S_OUTBYTES];
-    blake2s( hash, buf, key, BLAKE2S_OUTBYTES, i, BLAKE2S_KEYBYTES );
+    blake2s( hash, BLAKE2S_OUTBYTES, buf, i, key, BLAKE2S_KEYBYTES );
 
     if( 0 != memcmp( hash, blake2s_keyed_kat[i], BLAKE2S_OUTBYTES ) )
     {

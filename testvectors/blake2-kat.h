@@ -1,15 +1,14 @@
-#pragma once
-#ifndef __BLAKE2_KAT_H__
-#define __BLAKE2_KAT_H__
+#ifndef BLAKE2_KAT_H
+#define BLAKE2_KAT_H
 
 
 #include <stdint.h>
 
-#define KAT_LENGTH 256
+#define BLAKE2_KAT_LENGTH 256
 
 
 
-static const uint8_t blake2s_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] = 
+static const uint8_t blake2s_kat[BLAKE2_KAT_LENGTH][BLAKE2S_OUTBYTES] = 
 {
 	{
 		0x69, 0x21, 0x7A, 0x30, 0x79, 0x90, 0x80, 0x94,
@@ -1552,7 +1551,7 @@ static const uint8_t blake2s_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] =
 
 
 
-static const uint8_t blake2s_keyed_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] = 
+static const uint8_t blake2s_keyed_kat[BLAKE2_KAT_LENGTH][BLAKE2S_OUTBYTES] = 
 {
 	{
 		0x48, 0xA8, 0x99, 0x7D, 0xA4, 0x07, 0x87, 0x6B,
@@ -3095,7 +3094,7 @@ static const uint8_t blake2s_keyed_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] =
 
 
 
-static const uint8_t blake2b_kat[KAT_LENGTH][BLAKE2B_OUTBYTES] = 
+static const uint8_t blake2b_kat[BLAKE2_KAT_LENGTH][BLAKE2B_OUTBYTES] = 
 {
 	{
 		0x78, 0x6A, 0x02, 0xF7, 0x42, 0x01, 0x59, 0x03,
@@ -5662,7 +5661,7 @@ static const uint8_t blake2b_kat[KAT_LENGTH][BLAKE2B_OUTBYTES] =
 
 
 
-static const uint8_t blake2b_keyed_kat[KAT_LENGTH][BLAKE2B_OUTBYTES] = 
+static const uint8_t blake2b_keyed_kat[BLAKE2_KAT_LENGTH][BLAKE2B_OUTBYTES] = 
 {
 	{
 		0x10, 0xEB, 0xB6, 0x77, 0x00, 0xB1, 0x86, 0x8E,
@@ -8229,7 +8228,7 @@ static const uint8_t blake2b_keyed_kat[KAT_LENGTH][BLAKE2B_OUTBYTES] =
 
 
 
-static const uint8_t blake2sp_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] = 
+static const uint8_t blake2sp_kat[BLAKE2_KAT_LENGTH][BLAKE2S_OUTBYTES] = 
 {
 	{
 		0xDD, 0x0E, 0x89, 0x17, 0x76, 0x93, 0x3F, 0x43,
@@ -9772,7 +9771,7 @@ static const uint8_t blake2sp_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] =
 
 
 
-static const uint8_t blake2sp_keyed_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] = 
+static const uint8_t blake2sp_keyed_kat[BLAKE2_KAT_LENGTH][BLAKE2S_OUTBYTES] = 
 {
 	{
 		0x71, 0x5C, 0xB1, 0x38, 0x95, 0xAE, 0xB6, 0x78,
@@ -11315,7 +11314,7 @@ static const uint8_t blake2sp_keyed_kat[KAT_LENGTH][BLAKE2S_OUTBYTES] =
 
 
 
-static const uint8_t blake2bp_kat[KAT_LENGTH][BLAKE2B_OUTBYTES] = 
+static const uint8_t blake2bp_kat[BLAKE2_KAT_LENGTH][BLAKE2B_OUTBYTES] = 
 {
 	{
 		0xB5, 0xEF, 0x81, 0x1A, 0x80, 0x38, 0xF7, 0x0B,
@@ -13882,7 +13881,7 @@ static const uint8_t blake2bp_kat[KAT_LENGTH][BLAKE2B_OUTBYTES] =
 
 
 
-static const uint8_t blake2bp_keyed_kat[KAT_LENGTH][BLAKE2B_OUTBYTES] = 
+static const uint8_t blake2bp_keyed_kat[BLAKE2_KAT_LENGTH][BLAKE2B_OUTBYTES] = 
 {
 	{
 		0x9D, 0x94, 0x61, 0x07, 0x3E, 0x4E, 0xB6, 0x40,
