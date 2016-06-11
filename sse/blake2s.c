@@ -100,7 +100,7 @@ static void blake2s_increment_counter( blake2s_state *S, const uint32_t inc )
 
 static void blake2s_init0( blake2s_state *S )
 {
-  int i;
+  size_t i;
   memset( S, 0, sizeof( blake2s_state ) );
 
   for( i = 0; i < 8; ++i ) S->h[i] = blake2s_IV[i];
@@ -109,7 +109,7 @@ static void blake2s_init0( blake2s_state *S )
 /* init2 xors IV with input parameter block */
 int blake2s_init_param( blake2s_state *S, const blake2s_param *P )
 {
-  int i;
+  size_t i;
   /*blake2s_init0( S ); */
   const uint8_t * v = ( const uint8_t * )( blake2s_IV );
   const uint8_t * p = ( const uint8_t * )( P );
@@ -266,7 +266,7 @@ int blake2s_update( blake2s_state *S, const void *pin, size_t inlen )
 int blake2s_final( blake2s_state *S, void *out, size_t outlen )
 {
   uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
-  int i;
+  size_t i;
 
   if( outlen > BLAKE2S_OUTBYTES )
     return -1;
