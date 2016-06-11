@@ -314,7 +314,7 @@ int main( void )
 {
   uint8_t key[BLAKE2S_KEYBYTES];
   uint8_t buf[BLAKE2_KAT_LENGTH];
-  size_t i;
+  size_t i, step;
 
   for( i = 0; i < BLAKE2S_KEYBYTES; ++i )
     key[i] = ( uint8_t )i;
@@ -322,6 +322,7 @@ int main( void )
   for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
     buf[i] = ( uint8_t )i;
 
+  /* Test simple API */
   for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
   {
     uint8_t hash[BLAKE2S_OUTBYTES];
@@ -329,13 +330,48 @@ int main( void )
 
     if( 0 != memcmp( hash, blake2s_keyed_kat[i], BLAKE2S_OUTBYTES ) )
     {
-      puts( "error" );
-      return -1;
+      goto fail;
+    }
+  }
+
+  /* Test streaming API */
+  for(step = 1; step < BLAKE2S_BLOCKBYTES; ++step) {
+    for (i = 0; i < BLAKE2_KAT_LENGTH; ++i) {
+      uint8_t hash[BLAKE2S_OUTBYTES];
+      blake2s_state S;
+      uint8_t * p = buf;
+      size_t mlen = i;
+      int err = 0;
+
+      if( (err = blake2s_init_key(&S, BLAKE2S_OUTBYTES, key, BLAKE2S_KEYBYTES)) < 0 ) {
+        goto fail;
+      }
+
+      while (mlen >= step) {
+        if ( (err = blake2s_update(&S, p, step)) < 0 ) {
+          goto fail;
+        }
+        mlen -= step;
+        p += step;
+      }
+      if ( (err = blake2s_update(&S, p, mlen)) < 0) {
+        goto fail;
+      }
+      if ( (err = blake2s_final(&S, hash, BLAKE2S_OUTBYTES)) < 0) {
+        goto fail;
+      }
+
+      if (0 != memcmp(hash, blake2s_keyed_kat[i], BLAKE2S_OUTBYTES)) {
+        goto fail;
+      }
     }
   }
 
   puts( "ok" );
   return 0;
+fail:
+  puts("error");
+  return -1;
 }
 #endif
 
