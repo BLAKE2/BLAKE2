@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O3 -march=native -I../testvectors
+CFLAGS=-O3 -I../testvectors
 
 all:		blake2s blake2b blake2sp blake2bp check
 

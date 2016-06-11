@@ -49,32 +49,10 @@ static const uint64_t blake2b_IV[8] =
   0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
 };
 
-static const uint8_t blake2b_sigma[12][16] =
-{
-  {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 } ,
-  { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 } ,
-  { 11,  8, 12,  0,  5,  2, 15, 13, 10, 14,  3,  6,  7,  1,  9,  4 } ,
-  {  7,  9,  3,  1, 13, 12, 11, 14,  2,  6,  5, 10,  4,  0, 15,  8 } ,
-  {  9,  0,  5,  7,  2,  4, 10, 15, 14,  1, 11, 12,  6,  8,  3, 13 } ,
-  {  2, 12,  6, 10,  0, 11,  8,  3,  4, 13,  7,  5, 15, 14,  1,  9 } ,
-  { 12,  5,  1, 15, 14, 13,  4, 10,  0,  7,  6,  3,  9,  2,  8, 11 } ,
-  { 13, 11,  7, 14, 12,  1,  3,  9,  5,  0, 15,  4,  8,  6,  2, 10 } ,
-  {  6, 15, 14,  9, 11,  3,  0,  8, 12,  2, 13,  7,  1,  4, 10,  5 } ,
-  { 10,  2,  8,  4,  7,  6,  1,  5, 15, 11,  9, 14,  3, 12, 13 , 0 } ,
-  {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 } ,
-  { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
-};
-
-
 /* Some helper functions */
 static void blake2b_set_lastnode( blake2b_state *S )
 {
   S->f[1] = (uint64_t)-1;
-}
-
-static void blake2b_clear_lastnode( blake2b_state *S )
-{
-  S->f[1] = 0;
 }
 
 static int blake2b_is_lastblock( const blake2b_state *S )
@@ -89,26 +67,10 @@ static void blake2b_set_lastblock( blake2b_state *S )
   S->f[0] = (uint64_t)-1;
 }
 
-static void blake2b_clear_lastblock( blake2b_state *S )
-{
-  if( S->last_node ) blake2b_clear_lastnode( S );
-
-  S->f[0] = 0;
-}
-
-
 static void blake2b_increment_counter( blake2b_state *S, const uint64_t inc )
 {
   S->t[0] += inc;
   S->t[1] += ( S->t[0] < inc );
-}
-
-static void blake2b_init0( blake2b_state *S )
-{
-  size_t i;
-  memset( S, 0, sizeof( blake2b_state ) );
-
-  for( i = 0; i < 8; ++i ) S->h[i] = blake2b_IV[i];
 }
 
 /* init xors IV with input parameter block */
@@ -132,48 +94,46 @@ int blake2b_init_param( blake2b_state *S, const blake2b_param *P )
 /* Some sort of default parameter block initialization, for sequential blake2b */
 int blake2b_init( blake2b_state *S, size_t outlen )
 {
-  const blake2b_param P =
-  {
-    (uint8_t)outlen,
-    0,
-    1,
-    1,
-    0,
-    0,
-    0,
-    0,
-    {0},
-    {0},
-    {0}
-  };
+  blake2b_param P[1];
 
   if ( ( !outlen ) || ( outlen > BLAKE2B_OUTBYTES ) ) return -1;
 
-  return blake2b_init_param( S, &P );
+  P->digest_length = (uint8_t)outlen;
+  P->key_length    = 0;
+  P->fanout        = 1;
+  P->depth         = 1;
+  store32( &P->leaf_length, 0 );
+  store64( &P->node_offset, 0 );
+  P->node_depth    = 0;
+  P->inner_length  = 0;
+  memset( P->reserved, 0, sizeof( P->reserved ) );
+  memset( P->salt,     0, sizeof( P->salt ) );
+  memset( P->personal, 0, sizeof( P->personal ) );
+
+  return blake2b_init_param( S, P );
 }
 
 int blake2b_init_key( blake2b_state *S, size_t outlen, const void *key, size_t keylen )
 {
-  const blake2b_param P =
-  {
-    (uint8_t)outlen,
-    (uint8_t)keylen,
-    1,
-    1,
-    0,
-    0,
-    0,
-    0,
-    {0},
-    {0},
-    {0}
-  };
+  blake2b_param P[1];
 
   if ( ( !outlen ) || ( outlen > BLAKE2B_OUTBYTES ) ) return -1;
 
   if ( ( !keylen ) || keylen > BLAKE2B_KEYBYTES ) return -1;
 
-  if( blake2b_init_param( S, &P ) < 0 )
+  P->digest_length = (uint8_t)outlen;
+  P->key_length    = (uint8_t)keylen;
+  P->fanout        = 1;
+  P->depth         = 1;
+  store32( &P->leaf_length, 0 );
+  store64( &P->node_offset, 0 );
+  P->node_depth    = 0;
+  P->inner_length  = 0;
+  memset( P->reserved, 0, sizeof( P->reserved ) );
+  memset( P->salt,     0, sizeof( P->salt ) );
+  memset( P->personal, 0, sizeof( P->personal ) );
+
+  if( blake2b_init_param( S, P ) < 0 )
     return 0;
 
   {
@@ -208,22 +168,22 @@ static void blake2b_compress( blake2b_state *S, const uint8_t block[BLAKE2B_BLOC
   const __m128i m6 = LOADU( block + 96 );
   const __m128i m7 = LOADU( block + 112 );
 #else
-  const uint64_t  m0 = ( ( uint64_t * )block )[ 0];
-  const uint64_t  m1 = ( ( uint64_t * )block )[ 1];
-  const uint64_t  m2 = ( ( uint64_t * )block )[ 2];
-  const uint64_t  m3 = ( ( uint64_t * )block )[ 3];
-  const uint64_t  m4 = ( ( uint64_t * )block )[ 4];
-  const uint64_t  m5 = ( ( uint64_t * )block )[ 5];
-  const uint64_t  m6 = ( ( uint64_t * )block )[ 6];
-  const uint64_t  m7 = ( ( uint64_t * )block )[ 7];
-  const uint64_t  m8 = ( ( uint64_t * )block )[ 8];
-  const uint64_t  m9 = ( ( uint64_t * )block )[ 9];
-  const uint64_t m10 = ( ( uint64_t * )block )[10];
-  const uint64_t m11 = ( ( uint64_t * )block )[11];
-  const uint64_t m12 = ( ( uint64_t * )block )[12];
-  const uint64_t m13 = ( ( uint64_t * )block )[13];
-  const uint64_t m14 = ( ( uint64_t * )block )[14];
-  const uint64_t m15 = ( ( uint64_t * )block )[15];
+  const uint64_t  m0 = load64(block +  0 * sizeof(uint64_t));
+  const uint64_t  m1 = load64(block +  1 * sizeof(uint64_t));
+  const uint64_t  m2 = load64(block +  2 * sizeof(uint64_t));
+  const uint64_t  m3 = load64(block +  3 * sizeof(uint64_t));
+  const uint64_t  m4 = load64(block +  4 * sizeof(uint64_t));
+  const uint64_t  m5 = load64(block +  5 * sizeof(uint64_t));
+  const uint64_t  m6 = load64(block +  6 * sizeof(uint64_t));
+  const uint64_t  m7 = load64(block +  7 * sizeof(uint64_t));
+  const uint64_t  m8 = load64(block +  8 * sizeof(uint64_t));
+  const uint64_t  m9 = load64(block +  9 * sizeof(uint64_t));
+  const uint64_t m10 = load64(block + 10 * sizeof(uint64_t));
+  const uint64_t m11 = load64(block + 11 * sizeof(uint64_t));
+  const uint64_t m12 = load64(block + 12 * sizeof(uint64_t));
+  const uint64_t m13 = load64(block + 13 * sizeof(uint64_t));
+  const uint64_t m14 = load64(block + 14 * sizeof(uint64_t));
+  const uint64_t m15 = load64(block + 15 * sizeof(uint64_t));
 #endif
   row1l = LOADU( &S->h[0] );
   row1h = LOADU( &S->h[2] );

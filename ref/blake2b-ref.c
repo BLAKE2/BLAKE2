@@ -50,11 +50,6 @@ static void blake2b_set_lastnode( blake2b_state *S )
   S->f[1] = (uint64_t)-1;
 }
 
-static void blake2b_clear_lastnode( blake2b_state *S )
-{
-  S->f[1] = 0;
-}
-
 /* Some helper functions, not necessarily useful */
 static int blake2b_is_lastblock( const blake2b_state *S )
 {
@@ -66,13 +61,6 @@ static void blake2b_set_lastblock( blake2b_state *S )
   if( S->last_node ) blake2b_set_lastnode( S );
 
   S->f[0] = (uint64_t)-1;
-}
-
-static void blake2b_clear_lastblock( blake2b_state *S )
-{
-  if( S->last_node ) blake2b_clear_lastnode( S );
-
-  S->f[0] = 0;
 }
 
 static void blake2b_increment_counter( blake2b_state *S, const uint64_t inc )
