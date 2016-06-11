@@ -40,7 +40,7 @@ do  \
     printf("    \"key\": \"\",\n");\
     printf("    \"out\": \"");\
     \
-    name( hash, in, NULL, size_prefix ## _OUTBYTES, i, 0 ); \
+    name( hash, size_prefix ## _OUTBYTES, in, i, NULL, 0 ); \
     \
     for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
         printf( "%02x", hash[j]);\
@@ -66,7 +66,7 @@ do  \
     printf("\",\n");\
     printf("    \"out\": \"");\
     \
-    name( hash, in, key, size_prefix ## _OUTBYTES, i, size_prefix ## _KEYBYTES ); \
+    name( hash, size_prefix ## _OUTBYTES, in, i, key, size_prefix ## _KEYBYTES ); \
     \
     for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
         printf( "%02x", hash[j]);\
@@ -88,7 +88,7 @@ int main( int argc, char **argv )
   for( size_t i = 0; i < sizeof( key ); ++i )
     key[i] = i;
 
-  printf("[");          
+  printf("[");
   MAKE_KAT( blake2s, BLAKE2S );
   MAKE_KEYED_KAT( blake2s, BLAKE2S );
   MAKE_KAT( blake2b, BLAKE2B );
@@ -97,7 +97,7 @@ int main( int argc, char **argv )
   MAKE_KEYED_KAT( blake2sp, BLAKE2S );
   MAKE_KAT( blake2bp, BLAKE2B );
   MAKE_KEYED_KAT( blake2bp, BLAKE2B );
-  printf("\n]\n");          
+  printf("\n]\n");
   fflush(stdout);
   return 0;
 }

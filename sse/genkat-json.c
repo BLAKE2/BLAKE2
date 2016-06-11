@@ -40,7 +40,7 @@ do  \
     printf("    \"key\": \"\",\n");\
     printf("    \"out\": \"");\
     \
-    name( hash, in, NULL, size_prefix ## _OUTBYTES, i, 0 ); \
+    name( hash, size_prefix ## _OUTBYTES, in, i, NULL, 0 ); \
     \
     for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
         printf( "%02x", hash[j]);\
@@ -66,7 +66,7 @@ do  \
     printf("\",\n");\
     printf("    \"out\": \"");\
     \
-    name( hash, in, key, size_prefix ## _OUTBYTES, i, size_prefix ## _KEYBYTES ); \
+    name( hash, size_prefix ## _OUTBYTES, in, i, key, size_prefix ## _KEYBYTES ); \
     \
     for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
         printf( "%02x", hash[j]);\

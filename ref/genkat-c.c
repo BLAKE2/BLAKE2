@@ -32,7 +32,7 @@ do  \
    \
   for( size_t i = 0; i < LENGTH; ++i ) \
   { \
-    name( hash, in, NULL, size_prefix ## _OUTBYTES, i, 0 ); \
+    name( hash, size_prefix ## _OUTBYTES, in, i, NULL, 0 ); \
     printf( "\t{\n\t\t" ); \
  \
   for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
@@ -52,7 +52,7 @@ do  \
   \
   for( size_t i = 0; i < LENGTH; ++i ) \
   { \
-  name( hash, in, key, size_prefix ## _OUTBYTES, i, size_prefix ## _KEYBYTES ); \
+  name( hash, size_prefix ## _OUTBYTES, in, i, key, size_prefix ## _KEYBYTES ); \
   printf( "\t{\n\t\t" ); \
   \
   for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
