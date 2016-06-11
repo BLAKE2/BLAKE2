@@ -69,6 +69,7 @@ int blake2bp_init( blake2bp_state *S, size_t outlen )
 
   memset( S->buf, 0, sizeof( S->buf ) );
   S->buflen = 0;
+  S->outlen = outlen;
 
   if( blake2bp_init_root( S->R, outlen, 0 ) < 0 )
     return -1;
@@ -91,6 +92,7 @@ int blake2bp_init_key( blake2bp_state *S, size_t outlen, const void *key, size_t
 
   memset( S->buf, 0, sizeof( S->buf ) );
   S->buflen = 0;
+  S->outlen = outlen;
 
   if( blake2bp_init_root( S->R, outlen, keylen ) < 0 )
     return -1;
@@ -172,6 +174,10 @@ int blake2bp_final( blake2bp_state *S, void *out, size_t outlen )
   uint8_t hash[PARALLELISM_DEGREE][BLAKE2B_OUTBYTES];
   size_t i;
 
+  if(out == NULL || outlen < S->outlen) {
+    return -1;
+  }
+
   for( i = 0; i < PARALLELISM_DEGREE; ++i )
   {
     if( S->buflen > i * BLAKE2B_BLOCKBYTES )
@@ -189,7 +195,7 @@ int blake2bp_final( blake2bp_state *S, void *out, size_t outlen )
   for( i = 0; i < PARALLELISM_DEGREE; ++i )
     blake2b_update( S->R, hash[i], BLAKE2B_OUTBYTES );
 
-  return blake2b_final( S->R, out, outlen );
+  return blake2b_final( S->R, out, S->outlen );
 }
 
 int blake2bp( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen )

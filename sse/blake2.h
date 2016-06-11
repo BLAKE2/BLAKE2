@@ -53,6 +53,7 @@ extern "C" {
     uint32_t f[2];
     uint8_t  buf[BLAKE2S_BLOCKBYTES];
     size_t   buflen;
+    size_t   outlen;
     uint8_t  last_node;
   } blake2s_state;
 
@@ -63,6 +64,7 @@ extern "C" {
     uint64_t f[2];
     uint8_t  buf[BLAKE2B_BLOCKBYTES];
     size_t   buflen;
+    size_t   outlen;
     uint8_t  last_node;
   } blake2b_state;
 
@@ -72,6 +74,7 @@ extern "C" {
     blake2s_state R[1];
     uint8_t       buf[8 * BLAKE2S_BLOCKBYTES];
     size_t        buflen;
+    size_t        outlen;
   } blake2sp_state;
 
   typedef struct blake2bp_state__
@@ -80,6 +83,7 @@ extern "C" {
     blake2b_state R[1];
     uint8_t       buf[4 * BLAKE2B_BLOCKBYTES];
     size_t        buflen;
+    size_t        outlen;
   } blake2bp_state;
 
 

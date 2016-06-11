@@ -124,6 +124,7 @@ int blake2b_init_param( blake2b_state *S, const blake2b_param *P )
 
   for( i = 0; i < BLAKE2B_OUTBYTES; ++i ) h[i] = v[i] ^ p[i];
 
+  S->outlen = P->digest_length;
   return 0;
 }
 
@@ -285,7 +286,7 @@ int blake2b_update( blake2b_state *S, const void *pin, size_t inlen )
 
 int blake2b_final( blake2b_state *S, void *out, size_t outlen )
 {
-  if( outlen > BLAKE2B_OUTBYTES )
+  if( out == NULL || outlen < S->outlen )
     return -1;
 
   if( blake2b_is_lastblock( S ) )
@@ -296,7 +297,7 @@ int blake2b_final( blake2b_state *S, void *out, size_t outlen )
   memset( S->buf + S->buflen, 0, BLAKE2B_BLOCKBYTES - S->buflen ); /* Padding */
   blake2b_compress( S, S->buf );
 
-  memcpy( out, &S->h[0], outlen );
+  memcpy( out, &S->h[0], S->outlen );
   return 0;
 }
 

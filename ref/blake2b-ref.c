@@ -101,6 +101,7 @@ int blake2b_init_param( blake2b_state *S, const blake2b_param *P )
   for( i = 0; i < 8; ++i )
     S->h[i] ^= load64( p + sizeof( S->h[i] ) * i );
 
+  S->outlen = P->digest_length;
   return 0;
 }
 
@@ -259,7 +260,7 @@ int blake2b_final( blake2b_state *S, void *out, size_t outlen )
   uint8_t buffer[BLAKE2B_OUTBYTES] = {0};
   size_t i;
 
-  if( out == NULL || outlen == 0 || outlen > BLAKE2B_OUTBYTES )
+  if( out == NULL || outlen < S->outlen )
     return -1;
 
   if( blake2b_is_lastblock( S ) )
@@ -273,7 +274,7 @@ int blake2b_final( blake2b_state *S, void *out, size_t outlen )
   for( i = 0; i < 8; ++i ) /* Output full hash to temp buffer */
     store64( buffer + sizeof( S->h[i] ) * i, S->h[i] );
 
-  memcpy( out, buffer, outlen );
+  memcpy( out, buffer, S->outlen );
   secure_zero_memory(buffer, sizeof(buffer));
   return 0;
 }
@@ -326,7 +327,7 @@ int main( void )
 {
   uint8_t key[BLAKE2B_KEYBYTES];
   uint8_t buf[BLAKE2_KAT_LENGTH];
-  size_t i;
+  size_t i, step;
 
   for( i = 0; i < BLAKE2B_KEYBYTES; ++i )
     key[i] = ( uint8_t )i;
@@ -334,6 +335,7 @@ int main( void )
   for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
     buf[i] = ( uint8_t )i;
 
+  /* Test simple API */
   for( i = 0; i < BLAKE2_KAT_LENGTH; ++i )
   {
     uint8_t hash[BLAKE2B_OUTBYTES];
@@ -341,13 +343,48 @@ int main( void )
 
     if( 0 != memcmp( hash, blake2b_keyed_kat[i], BLAKE2B_OUTBYTES ) )
     {
-      puts( "error" );
-      return -1;
+      goto fail;
+    }
+  }
+
+  /* Test streaming API */
+  for(step = 1; step < BLAKE2B_BLOCKBYTES; ++step) {
+    for (i = 0; i < BLAKE2_KAT_LENGTH; ++i) {
+      uint8_t hash[BLAKE2B_OUTBYTES];
+      blake2b_state S;
+      uint8_t * p = buf;
+      size_t mlen = i;
+      int err = 0;
+
+      if( (err = blake2b_init_key(&S, BLAKE2B_OUTBYTES, key, BLAKE2B_KEYBYTES)) < 0 ) {
+        goto fail;
+      }
+
+      while (mlen >= step) {
+        if ( (err = blake2b_update(&S, p, step)) < 0 ) {
+          goto fail;
+        }
+        mlen -= step;
+        p += step;
+      }
+      if ( (err = blake2b_update(&S, p, mlen)) < 0) {
+        goto fail;
+      }
+      if ( (err = blake2b_final(&S, hash, BLAKE2B_OUTBYTES)) < 0) {
+        goto fail;
+      }
+
+      if (0 != memcmp(hash, blake2b_keyed_kat[i], BLAKE2B_OUTBYTES)) {
+        goto fail;
+      }
     }
   }
 
   puts( "ok" );
   return 0;
+fail:
+  puts("error");
+  return -1;
 }
 #endif
 

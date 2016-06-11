@@ -119,6 +119,7 @@ int blake2s_init_param( blake2s_state *S, const blake2s_param *P )
 
   for( i = 0; i < BLAKE2S_OUTBYTES; ++i ) h[i] = v[i] ^ p[i];
 
+  S->outlen = P->digest_length;
   return 0;
 }
 
@@ -268,7 +269,7 @@ int blake2s_final( blake2s_state *S, void *out, size_t outlen )
   uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
   size_t i;
 
-  if( outlen > BLAKE2S_OUTBYTES )
+  if( out == NULL || outlen < S->outlen )
     return -1;
 
   if( blake2s_is_lastblock( S ) )
@@ -282,7 +283,7 @@ int blake2s_final( blake2s_state *S, void *out, size_t outlen )
   for( i = 0; i < 8; ++i ) /* Output full hash to temp buffer */
     store32( buffer + sizeof( S->h[i] ) * i, S->h[i] );
 
-  memcpy( out, buffer, outlen );
+  memcpy( out, buffer, S->outlen );
   secure_zero_memory( buffer, sizeof(buffer) );
   return 0;
 }

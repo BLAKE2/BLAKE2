@@ -96,6 +96,7 @@ int blake2s_init_param( blake2s_state *S, const blake2s_param *P )
   for( i = 0; i < 8; ++i )
     S->h[i] ^= load32( &p[i * 4] );
 
+  S->outlen = P->digest_length;
   return 0;
 }
 
@@ -252,7 +253,7 @@ int blake2s_final( blake2s_state *S, void *out, size_t outlen )
   uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
   size_t i;
 
-  if( out == NULL || outlen == 0 || outlen > BLAKE2S_OUTBYTES )
+  if( out == NULL || outlen < S->outlen )
     return -1;
 
   if( blake2s_is_lastblock( S ) )
