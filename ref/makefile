@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -Wall -I../testvectors
+CFLAGS=-O2 -I../testvectors
 
 all:		blake2s blake2b blake2sp blake2bp check
 

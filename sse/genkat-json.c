@@ -88,7 +88,7 @@ int main( int argc, char **argv )
   for( size_t i = 0; i < sizeof( key ); ++i )
     key[i] = i;
 
-  printf("[");          
+  printf("[");
   MAKE_KAT( blake2s, BLAKE2S );
   MAKE_KEYED_KAT( blake2s, BLAKE2S );
   MAKE_KAT( blake2b, BLAKE2B );
@@ -97,7 +97,7 @@ int main( int argc, char **argv )
   MAKE_KEYED_KAT( blake2sp, BLAKE2S );
   MAKE_KAT( blake2bp, BLAKE2B );
   MAKE_KEYED_KAT( blake2bp, BLAKE2B );
-  printf("\n]\n");          
+  printf("\n]\n");
   fflush(stdout);
   return 0;
 }
