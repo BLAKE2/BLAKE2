@@ -26,7 +26,26 @@ static int bench_cmp( const void *x, const void *y )
   return *ix - *iy;
 }
 
-unsigned long long cpucycles( void );
+#if defined(__amd64__) || defined(__x86_64__)
+static unsigned long long cpucycles( void ) {
+  unsigned long long result;
+  __asm__ __volatile__(
+    ".byte 15;.byte 49\n"
+    "shlq $32,%%rdx\n"
+    "orq %%rdx,%%rax\n"
+    : "=a" ( result ) ::  "%rdx"
+  );
+  return result;
+}
+#elif defined(__i386__)
+static unsigned long long cpucycles( void ) {
+  unsigned long long result;
+  __asm__ __volatile__( ".byte 15;.byte 49;" : "=A" ( result ) );
+  return result;
+}
+#else
+#error "Don't know how to count cycles on this platform!"
+#endif
 
 void bench()
 {
