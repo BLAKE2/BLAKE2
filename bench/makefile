@@ -1,6 +1,6 @@
 CC=gcc
 # std to gnu99 to support inline asm
-CFLAGS=-std=gnu99 -O3 -march=native -DSUPERCOP # -DHAVE_XOP # uncomment on XOP-enabled CPUs
+CFLAGS=-O3 -march=native -DSUPERCOP # -DHAVE_XOP # uncomment on XOP-enabled CPUs
 FILES=bench.c
 
 all: bench
