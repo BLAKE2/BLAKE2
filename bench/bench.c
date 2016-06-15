@@ -43,6 +43,11 @@ static unsigned long long cpucycles( void ) {
   __asm__ __volatile__( ".byte 15;.byte 49;" : "=A" ( result ) );
   return result;
 }
+#elif defined(_MSC_VER)
+#include <intrin.h>
+static unsigned long long cpucycles( void ) {
+  return __rdtsc();
+}
 #else
 #error "Don't know how to count cycles on this platform!"
 #endif
