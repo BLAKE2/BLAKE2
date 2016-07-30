@@ -125,7 +125,7 @@ namespace Blake2
 			buf[offset] = (byte)value;
 		}
 
-		protected virtual void Config()
+		public override void Initialize()
 		{
 			if (rawConfig != null)
 				Array.Clear(rawConfig, 0, rawConfig.Length);
@@ -189,6 +189,8 @@ namespace Blake2
 				rawConfig[6] = Blake2B.BytesToUInt64(Personalization, 0);
 				rawConfig[7] = Blake2B.BytesToUInt64(Personalization, 8);
 			}
+
+			Initialize(rawConfig);
 		}
 
 		/* public static void ConfigBSetNode(ulong[] rawConfig, byte depth, ulong nodeOffset)
@@ -196,12 +198,6 @@ namespace Blake2
 			rawConfig[1] = nodeOffset;
 			rawConfig[2] = (rawConfig[2] & ~0xFFul) | depth;
 		} */
-
-		public override void Initialize()
-		{
-			Config();
-			Initialize(rawConfig);
-		}
 
 		public void Initialize(ulong[] config)
 		{
