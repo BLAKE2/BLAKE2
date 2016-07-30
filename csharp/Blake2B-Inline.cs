@@ -1,19 +1,23 @@
-﻿// BLAKE2 reference source code package - C# implementation
+﻿/*	BLAKE2 reference source code package - C# implementation
 
-// Written in 2012 by Christian Winnerlein  <codesinchaos@gmail.com>
+	Written in 2012 by Samuel Neves <sneves@dei.uc.pt>
+	Written in 2012 by Christian Winnerlein <codesinchaos@gmail.com>
+	Written in 2016 by Uli Riehm <metadings@live.de>
 
-// To the extent possible under law, the author(s) have dedicated all copyright
-// and related and neighboring rights to this software to the public domain
-// worldwide. This software is distributed without any warranty.
+	To the extent possible under law, the author(s) have dedicated all copyright
+	and related and neighboring rights to this software to the public domain
+	worldwide. This software is distributed without any warranty.
 
-// You should have received a copy of the CC0 Public Domain Dedication along with
-// this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+	You should have received a copy of the CC0 Public Domain Dedication along with
+	this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+*/
+
 using System;
 
-namespace Blake2Sharp
+namespace Blake2
 {
 #if false
-	public sealed partial class Blake2BCore
+	public partial class Blake2B
 	{
 		partial void Compress(byte[] block, int start)
 		{
