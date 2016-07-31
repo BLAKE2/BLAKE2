@@ -49,8 +49,8 @@ namespace Blake2
 			var v11 = IV3;
 			var v12 = IV4 ^ _counter0;
 			var v13 = IV5 ^ _counter1;
-			var v14 = IV6 ^ _finaliziationFlag0;
-			var v15 = IV7 ^ _finaliziationFlag1;
+			var v14 = IV6 ^ _finalizationFlag0;
+			var v15 = IV7 ^ _finalizationFlag1;
 
 			for (int r = 0; r < NumberOfRounds; ++r)
 			{
