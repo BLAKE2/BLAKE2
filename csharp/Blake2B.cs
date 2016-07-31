@@ -115,7 +115,7 @@ namespace Blake2
 		const ulong IV6 = 0x1F83D9ABFB41BD6BUL;
 		const ulong IV7 = 0x5BE0CD19137E2179UL;
 
-		private static readonly int[] Sigma = new int[NumberOfRounds * 16] {
+		public static readonly int[] Sigma = new int[NumberOfRounds * 16] {
 			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 			14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3,
 			11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4,
