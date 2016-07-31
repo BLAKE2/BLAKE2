@@ -1,0 +1,7 @@
+bin/*
+obj/*
+*.obj
+*.user
+*.userprefs
+*.old*
+*.nupkg
