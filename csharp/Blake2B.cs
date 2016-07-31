@@ -31,31 +31,28 @@ namespace Blake2
 
 		public Blake2BTreeConfig TreeConfig { get; set; }
 
-		public int OutputSizeInBytes { get; protected set; }
+		private int _outputSizeInBytes;
 
-		public int OutputSizeInBits
-		{
-			get { return OutputSizeInBytes * 8; }
-			protected set
-			{
+		public int OutputSizeInBytes 
+		{ 
+			get { return _outputSizeInBytes; }
+			protected set 
+			{ 
+				if (value <= 0 || value > 64)
+					throw new ArgumentOutOfRangeException("outputSizeInBytes");
 				if (value % 8 != 0)
-					throw new ArgumentException("Output size must be a multiple of 8 bits");
-				
-				OutputSizeInBytes = value / 8;
+					throw new ArgumentOutOfRangeException("outputSizeInBytes must be a multiple of 8 bits");
+
+				_outputSizeInBytes = value;
 			}
 		}
 
-		public override int HashSize { get { return OutputSizeInBits; } }
+		public override int HashSize { get { return OutputSizeInBytes * 8; } }
 
 		public Blake2B() : this(64) { }
 
 		public Blake2B(int outputSizeInBytes)
-		{
-			if (outputSizeInBytes <= 0 || outputSizeInBytes > 64)
-				throw new ArgumentOutOfRangeException("outputSizeInBytes");
-			if (outputSizeInBytes % 8 != 0)
-				throw new ArgumentOutOfRangeException("outputSizeInBytes must be a multiple of 8 bits");
-			
+		{			
 			OutputSizeInBytes = outputSizeInBytes;
 		}
 
@@ -131,15 +128,13 @@ namespace Blake2
 				rawConfig = new ulong[8];
 
 			// digest length
-			if (OutputSizeInBytes <= 0 || OutputSizeInBytes > 64)
-				throw new ArgumentOutOfRangeException("OutputSizeInBytes");
 			rawConfig[0] |= (ulong)(uint)OutputSizeInBytes;
 
 			// Key length
 			if (Key != null)
 			{
 				if (Key.Length > 64)
-					throw new ArgumentException("config.Key", "Key too long");
+					throw new ArgumentException("Key", "Key too long");
 				rawConfig[0] |= (ulong)((uint)Key.Length << 8);
 			}
 
