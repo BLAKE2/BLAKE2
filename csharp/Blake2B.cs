@@ -57,8 +57,6 @@ namespace Blake2
 				throw new ArgumentOutOfRangeException("outputSizeInBytes must be a multiple of 8 bits");
 			
 			OutputSizeInBytes = outputSizeInBytes;
-
-			Initialize();
 		}
 
 		private bool _isInitialized = false;
@@ -239,8 +237,8 @@ namespace Blake2
 
 		protected override void HashCore(byte[] array, int start, int count)
 		{
-			if (!_isInitialized)
-				throw new InvalidOperationException("Not initialized");
+			if (!_isInitialized) Initialize();
+
 			if (array == null)
 				throw new ArgumentNullException("array");
 			if (start < 0)
@@ -288,8 +286,8 @@ namespace Blake2
 
 		protected virtual byte[] HashFinal(bool isEndOfLayer)
 		{
-			if (!_isInitialized)
-				throw new InvalidOperationException("Not initialized");
+			if (!_isInitialized) Initialize();
+
 			_isInitialized = false;
 
 			//Last compression
