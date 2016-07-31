@@ -23,13 +23,50 @@ namespace Blake2
 	{
 		private ulong[] rawConfig;
 
-		public byte[] Personalization { get; set; }
+		private byte[] _Personalization;
 
-		public byte[] Salt { get; set; }
+		public byte[] Personalization 
+		{ 
+			get { return _Personalization; }
+			set { 
+				_Personalization = value; 
+				_isInitialized = false;
+			}
+		}
 
-		public byte[] Key { get; set; }
+		private byte[] _Salt;
 
-		public Blake2BTreeConfig TreeConfig { get; set; }
+		public byte[] Salt 
+		{ 
+			get { return _Salt; }
+			set { 
+				_Salt = value; 
+				_isInitialized = false;
+			}
+		}
+
+
+		private byte[] _Key;
+
+		public byte[] Key
+		{ 
+			get { return _Key; }
+			set { 
+				_Key = value; 
+				_isInitialized = false;
+			}
+		}
+
+		private Blake2BTreeConfig _TreeConfig;
+
+		public Blake2BTreeConfig TreeConfig
+		{ 
+			get { return _TreeConfig; }
+			set { 
+				_TreeConfig = value; 
+				_isInitialized = false;
+			}
+		}
 
 		private int _outputSizeInBytes;
 
@@ -39,9 +76,9 @@ namespace Blake2
 			protected set 
 			{ 
 				if (value <= 0 || value > 64)
-					throw new ArgumentOutOfRangeException("outputSizeInBytes");
+					throw new IndexOutOfRangeException("OutputSizeInBytes");
 				if (value % 8 != 0)
-					throw new ArgumentOutOfRangeException("outputSizeInBytes must be a multiple of 8 bits");
+					throw new IndexOutOfRangeException("OutputSizeInBytes must be a multiple of 8");
 
 				_outputSizeInBytes = value;
 			}
@@ -192,7 +229,7 @@ namespace Blake2
 			rawConfig[2] = (rawConfig[2] & ~0xFFul) | depth;
 		} */
 
-		public void Initialize(ulong[] config)
+		public virtual void Initialize(ulong[] config)
 		{
 			if (config == null)
 				throw new ArgumentNullException("config");
@@ -306,6 +343,8 @@ namespace Blake2
 		{
 			if (disposing)
 			{
+				_isInitialized = false;
+				
 				if (rawConfig != null)
 				{
 					Array.Clear(rawConfig, 0, rawConfig.Length);
