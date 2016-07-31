@@ -237,8 +237,6 @@ namespace Blake2
 
 		protected override void HashCore(byte[] array, int start, int count)
 		{
-			if (!_isInitialized) Initialize();
-
 			if (array == null)
 				throw new ArgumentNullException("array");
 			if (start < 0)
@@ -247,6 +245,9 @@ namespace Blake2
 				throw new ArgumentOutOfRangeException("count");
 			if ((long)start + (long)count > array.Length)
 				throw new ArgumentOutOfRangeException("start+count");
+
+			if (!_isInitialized) Initialize();
+
 			int offset = start;
 			int bufferRemaining = BlockSizeInBytes - _bufferFilled;
 
