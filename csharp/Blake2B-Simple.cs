@@ -16,7 +16,7 @@ using System;
 
 namespace Blake2
 {
-#if false
+#if SIMPLE
 	public partial class Blake2B
 	{
 		private ulong[] _v = new ulong[16];

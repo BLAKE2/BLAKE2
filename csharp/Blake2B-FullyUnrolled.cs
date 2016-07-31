@@ -16,7 +16,7 @@ using System;
 
 namespace Blake2
 {
-#if true
+#if !INLINE && !SIMPLE
 	public partial class Blake2B
 	{
 		partial void Compress(byte[] block, int start)
