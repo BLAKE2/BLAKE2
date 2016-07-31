@@ -45,7 +45,6 @@ namespace Blake2
 			}
 		}
 
-
 		private byte[] _Key;
 
 		public byte[] Key
@@ -97,9 +96,8 @@ namespace Blake2
 
 		private int _bufferFilled;
 		private byte[] _buf = new byte[128];
-
-		private ulong[] _m = new ulong[16];
 		private ulong[] _h = new ulong[8];
+		private ulong[] _m = new ulong[16];
 		private ulong _counter0;
 		private ulong _counter1;
 		private ulong _finalizationFlag0;
@@ -117,7 +115,7 @@ namespace Blake2
 		const ulong IV6 = 0x1F83D9ABFB41BD6BUL;
 		const ulong IV7 = 0x5BE0CD19137E2179UL;
 
-		/* private static readonly int[] Sigma = new int[NumberOfRounds * 16] {
+		private static readonly int[] Sigma = new int[NumberOfRounds * 16] {
 			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 			14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3,
 			11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4,
@@ -130,7 +128,7 @@ namespace Blake2
 			10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0,
 			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 			14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3
-		}; /**/
+		};
 
 		public static ulong BytesToUInt64(byte[] buf, int offset)
 		{
@@ -354,11 +352,6 @@ namespace Blake2
 				{
 					Array.Clear(_buf, 0, _buf.Length);
 					_buf = null;
-				}
-				if (_m != null)
-				{
-					Array.Clear(_m, 0, _m.Length);
-					_m = null;
 				}
 				if (_h != null)
 				{
