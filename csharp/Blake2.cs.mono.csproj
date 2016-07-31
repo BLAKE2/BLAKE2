@@ -31,6 +31,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Blake2B.cs" />
     <Compile Include="Blake2BTreeConfig.cs" />
     <Compile Include="Blake2B-FullyUnrolled.cs" />
