@@ -37,5 +37,6 @@
     <Compile Include="Blake2B-FullyUnrolled.cs" />
     <Compile Include="Blake2B-Inline.cs" />
     <Compile Include="Blake2B-Simple.cs" />
+    <Compile Include="Program.cs" />
   </ItemGroup>
 </Project>

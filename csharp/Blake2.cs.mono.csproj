@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{8029A6D1-396A-4CD2-8666-9CB61B4D38E1}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Blake2</RootNamespace>
     <AssemblyName>Blake2</AssemblyName>
   </PropertyGroup>
@@ -37,5 +37,6 @@
     <Compile Include="Blake2B-FullyUnrolled.cs" />
     <Compile Include="Blake2B-Inline.cs" />
     <Compile Include="Blake2B-Simple.cs" />
+    <Compile Include="Program.cs" />
   </ItemGroup>
 </Project>
