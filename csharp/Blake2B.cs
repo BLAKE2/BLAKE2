@@ -316,6 +316,21 @@ namespace Blake2
 					Array.Clear(rawConfig, 0, rawConfig.Length);
 					rawConfig = null;
 				}
+				if (_buf != null)
+				{
+					Array.Clear(_buf, 0, _buf.Length);
+					_buf = null;
+				}
+				if (_m != null)
+				{
+					Array.Clear(_m, 0, _m.Length);
+					_m = null;
+				}
+				if (_h != null)
+				{
+					Array.Clear(_h, 0, _h.Length);
+					_h = null;
+				}
 				if (Personalization != null)
 				{
 					Array.Clear(Personalization, 0, Personalization.Length);
