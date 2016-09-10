@@ -11,17 +11,16 @@
 /// this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 using System;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Blake2Sharp.Tests
 {
-	[TestClass]
 	public class SequentialTests
 	{
 		byte[] input = Enumerable.Range(0, 256).Select(i => (byte)i).ToArray();
 
 
-		[TestMethod]
+		[Fact]
 		public void CheckTestVectors()
 		{
 			for (int len = 0; len < TestVectors.UnkeyedBlake2B.Length; len++)
@@ -30,11 +29,11 @@ namespace Blake2Sharp.Tests
 				var hash = Blake2B.ComputeHash(input);
 				string actual = BitConverter.ToString(hash).Replace("-", "");
 				string expected = TestVectors.UnkeyedBlake2B[len];
-				Assert.AreEqual(expected, actual);
+                Assert.Equal(expected, actual);
 			}
 		}
 
-		[TestMethod]
+		[Fact]
 		public void CheckKeyedTestVectors()
 		{
 			var key = Enumerable.Range(0, 64).Select(i => (byte)i).ToArray();
@@ -44,11 +43,11 @@ namespace Blake2Sharp.Tests
 				var hash = Blake2B.ComputeHash(input, new Blake2BConfig { Key = key });
 				string actual = BitConverter.ToString(hash).Replace("-", "");
 				string expected = TestVectors.KeyedBlake2B[len];
-				Assert.AreEqual(expected, actual);
+				Assert.Equal(expected, actual);
 			}
 		}
 
-		[TestMethod]
+		[Fact]
 		public void Splits()
 		{
 			var hasher = Blake2B.Create();
@@ -67,7 +66,7 @@ namespace Blake2Sharp.Tests
 						hasher.Update(input, split1, split2 - split1);
 						hasher.Update(input, split2, len - split2);
 						string hash1 = BitConverter.ToString(hasher.Finish());
-						Assert.AreEqual(hash0, hash1);
+						Assert.Equal(hash0, hash1);
 					}
 				}
 			}
