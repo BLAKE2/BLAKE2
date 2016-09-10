@@ -13,7 +13,7 @@ using System;
 
 namespace Blake2Sharp
 {
-	public sealed class Blake2BTreeConfig : ICloneable
+	public sealed class Blake2BTreeConfig
 	{
 		public int IntermediateHashSize { get; set; }
 		public int MaxHeight { get; set; }
@@ -43,10 +43,6 @@ namespace Blake2Sharp
 			result.IntermediateHashSize = 64;
 			return result;
 		}
-
-		object ICloneable.Clone()
-		{
-			return Clone();
-		}
+        
 	}
 }

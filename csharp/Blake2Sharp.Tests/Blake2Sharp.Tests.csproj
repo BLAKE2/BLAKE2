@@ -58,12 +58,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestVectors.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Blake2Sharp\Blake2Sharp.csproj">
-      <Project>{e21ab364-9130-4f14-abe1-18fa0c089130}</Project>
-      <Name>Blake2Sharp</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
