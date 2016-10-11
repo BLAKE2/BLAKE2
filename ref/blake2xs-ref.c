@@ -168,18 +168,17 @@ int main( void )
       uint8_t hash[BLAKE2_KAT_LENGTH] = {0};
       blake2xs( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2S_KEYBYTES );
 
-#if 0
-      if( 0 != memcmp( hash, blake2xs_keyed_kat[i-1], i ) )
+
+      if( 0 != memcmp( hash, blake2xs_keyed_kat[outlen-1], outlen ) )
       {
         goto fail;
       }
-#endif
   }
 
   /* Test streaming API */
   for(step = 1; step < BLAKE2S_BLOCKBYTES; ++step) {
     for (size_t outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen) {
-      uint8_t hash[BLAKE2S_OUTBYTES];
+      uint8_t hash[BLAKE2_KAT_LENGTH];
       blake2xs_state S;
       uint8_t * p = buf;
       size_t mlen = BLAKE2_KAT_LENGTH;
@@ -203,7 +202,7 @@ int main( void )
         goto fail;
       }
 
-      if (0 != memcmp(hash, blake2s_keyed_kat[outlen-1], outlen)) {
+      if (0 != memcmp(hash, blake2xs_keyed_kat[outlen-1], outlen)) {
         goto fail;
       }
     }

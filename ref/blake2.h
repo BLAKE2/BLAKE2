@@ -160,7 +160,7 @@ extern "C" {
   int blake2bp( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
 
   int blake2xs( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
-  int blake2xb( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
+  //int blake2xb( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
 
   /* This is simply an alias for blake2b */
   int blake2( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );

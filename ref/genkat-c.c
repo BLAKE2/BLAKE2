@@ -70,9 +70,32 @@ do  \
 { \
   printf( "static const uint8_t " #name "_kat[BLAKE2_KAT_LENGTH][BLAKE2_KAT_LENGTH] = \n{\n" ); \
    \
-  for( size_t i = 0; i < LENGTH; ++i ) \
+  for( size_t i = 1; i <= LENGTH; ++i ) \
   { \
     name( hash, i, in, LENGTH, NULL, 0 ); \
+    printf( "\t{\n\t\t" ); \
+ \
+  for( int j = 0; j < i; ++j ) \
+      printf( "0x%02X%s", hash[j], j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
+      \
+  for( int j = i; j < LENGTH; ++j ) \
+      printf( "0x00%s", ( j + 1 ) == LENGTH ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
+      \
+    printf( "\t},\n" ); \
+  } \
+   \
+  printf( "};\n\n\n\n\n" ); \
+  \
+} while (0)
+
+#define MAKE_XOF_KEYED_KAT(name,size_prefix) \
+do  \
+{ \
+  printf( "static const uint8_t " #name "_keyed_kat[BLAKE2_KAT_LENGTH][BLAKE2_KAT_LENGTH] = \n{\n" ); \
+   \
+  for( size_t i = 1; i <= LENGTH; ++i ) \
+  { \
+    name( hash, i, in, LENGTH, key, size_prefix ## _KEYBYTES ); \
     printf( "\t{\n\t\t" ); \
  \
   for( int j = 0; j < i; ++j ) \
@@ -93,7 +116,7 @@ int main( int argc, char **argv )
 {
   uint8_t key[64] = {0};
   uint8_t in[LENGTH] = {0};
-  uint8_t hash[64] = {0};
+  uint8_t hash[LENGTH] = {0};
 
   for( size_t i = 0; i < sizeof( in ); ++i )
     in[i] = i;
@@ -114,6 +137,9 @@ int main( int argc, char **argv )
   MAKE_KAT( blake2bp, BLAKE2B );
   MAKE_KEYED_KAT( blake2bp, BLAKE2B );
   MAKE_XOF_KAT( blake2xs );
+  MAKE_XOF_KEYED_KAT( blake2xs, BLAKE2S );
+  //MAKE_XOF_KAT( blake2xs );
+  //MAKE_XOF_KEYED_KAT( blake2xs, BLAKE2S );
   puts( "#endif" );
   return 0;
 }
