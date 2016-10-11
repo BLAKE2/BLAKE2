@@ -5,11 +5,6 @@
 #include "blake2.h"
 #include "blake2-impl.h"
 
-typedef struct blake2xs_state__ {
-  blake2s_state S[1];
-  blake2s_param P[1];
-} blake2xs_state;
-
 
 int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen )
 {

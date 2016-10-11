@@ -123,6 +123,18 @@ extern "C" {
 
   typedef struct blake2b_param__ blake2b_param;
 
+  typedef struct blake2xs_state__ 
+  {
+    blake2s_state S[1];
+    blake2s_param P[1];
+  } blake2xs_state;
+
+  typedef struct blake2xb_state__ 
+  {
+    blake2b_state S[1];
+    blake2b_param P[1];
+  } blake2xb_state;
+
   /* Padded structs result in a compile-time error */
   enum {
     BLAKE2_DUMMY_1 = 1/(sizeof(blake2s_param) == BLAKE2S_OUTBYTES),
@@ -156,9 +168,9 @@ int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size
 int blake2xs_update( blake2xs_state *S, const void *in, size_t inlen );
 int blake2xs_final(blake2xs_state *S, void *out, size_t outlen);
 
-int blake2xb_init( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen );
-int blake2xb_update( blake2xs_state *S, const void *in, size_t inlen );
-int blake2xb_final(blake2xs_state *S, void *out, size_t outlen);
+int blake2xb_init( blake2xb_state *S, const size_t outlen, const void *key, size_t keylen );
+int blake2xb_update( blake2xb_state *S, const void *in, size_t inlen );
+int blake2xb_final(blake2xb_state *S, void *out, size_t outlen);
 
   /* Simple API */
   int blake2s( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
