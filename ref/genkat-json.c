@@ -84,7 +84,7 @@ do  \
      \
     printf("    \"hash\": \"" #name "\",\n");\
     printf("    \"in\": \"");\
-    for( int j = 0; j < i; ++j ) printf( "%02x", in[j]);\
+    for( int j = 0; j < LENGTH; ++j ) printf( "%02x", in[j]);\
     \
     printf( "\",\n" ); \
     printf("    \"key\": \"\",\n");\
