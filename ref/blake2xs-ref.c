@@ -17,7 +17,7 @@ int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size
     return -1;
   }
 
-  if (key == NULL || keylen > BLAKE2S_KEYBYTES) {
+  if (NULL == key || keylen > BLAKE2S_KEYBYTES) {
     return -1;
   }
 
@@ -60,7 +60,7 @@ int blake2xs_final(blake2xs_state *S, void *out, size_t outlen)
   uint8_t root[BLAKE2S_BLOCKBYTES];
   size_t i;
 
-  if (out == NULL) {
+  if (NULL == out) {
     return -1;
   }
 
@@ -149,28 +149,71 @@ int main( void )
 {
   uint8_t key[BLAKE2S_KEYBYTES];
   uint8_t buf[BLAKE2_KAT_LENGTH];
+  size_t i, step;
 
-  for( size_t i = 0; i < BLAKE2S_KEYBYTES; ++i ) {
+  for( i = 0; i < BLAKE2S_KEYBYTES; ++i ) {
     key[i] = ( uint8_t )i;
   }
 
-  for( size_t i = 0; i < BLAKE2_KAT_LENGTH; ++i ) {
+  for( i = 0; i < BLAKE2_KAT_LENGTH; ++i ) {
     buf[i] = ( uint8_t )i;
   }
 
-  for( size_t i = 1; i < BLAKE2_KAT_LENGTH; ++i )
+  /* Testing length of ouputs rather than inputs */
+  /* (Test of input lengths mostly covered by blake2s tests) */
+
+  /* Test simple API */
+  for( size_t outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen )
   {
       uint8_t hash[BLAKE2_KAT_LENGTH] = {0};
-      blake2xs( hash, i, buf, BLAKE2_KAT_LENGTH, key, BLAKE2S_KEYBYTES );
+      blake2xs( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2S_KEYBYTES );
 
-      for( size_t j = 0; j < i; ++j ) {
-          printf("%02x", hash[j]);
+#if 0
+      if( 0 != memcmp( hash, blake2xs_keyed_kat[i-1], i ) )
+      {
+        goto fail;
       }
-      printf("\n");
+#endif
   }
 
-  //puts( "ok" );
+  /* Test streaming API */
+  for(step = 1; step < BLAKE2S_BLOCKBYTES; ++step) {
+    for (size_t outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen) {
+      uint8_t hash[BLAKE2S_OUTBYTES];
+      blake2xs_state S;
+      uint8_t * p = buf;
+      size_t mlen = BLAKE2_KAT_LENGTH;
+      int err = 0;
+
+      if( (err = blake2xs_init(&S, outlen, key, BLAKE2S_KEYBYTES)) < 0 ) {
+        goto fail;
+      }
+
+      while (mlen >= step) {
+        if ( (err = blake2xs_update(&S, p, step)) < 0 ) {
+          goto fail;
+        }
+        mlen -= step;
+        p += step;
+      }
+      if ( (err = blake2xs_update(&S, p, mlen)) < 0) {
+        goto fail;
+      }
+      if ( (err = blake2xs_final(&S, hash, outlen)) < 0) {
+        goto fail;
+      }
+
+      if (0 != memcmp(hash, blake2s_keyed_kat[outlen-1], outlen)) {
+        goto fail;
+      }
+    }
+  }
+
+  puts( "ok" );
   return 0;
+fail:
+  puts("error");
+  return -1;
 }
 #endif
 
