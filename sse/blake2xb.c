@@ -1,17 +1,17 @@
 /*
    BLAKE2 reference source code package - reference C implementations
-  
-   Copyright 2016, JP Aumasson <jeanphilippe.aumasson@gmail.com>.  
-   Copyright 2016, Samuel Neves <sneves@dei.uc.pt>.  
-   
+
+   Copyright 2016, JP Aumasson <jeanphilippe.aumasson@gmail.com>.
+   Copyright 2016, Samuel Neves <sneves@dei.uc.pt>.
+
    You may use this under the terms of the CC0, the OpenSSL Licence, or
    the Apache Public License 2.0, at your option.  The terms of these
    licenses can be found at:
-  
+
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-  
+
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
@@ -164,11 +164,11 @@ int blake2xb(void *out, size_t outlen, const void *in, size_t inlen, const void 
 #if defined(BLAKE2XB_SELFTEST)
 #include <string.h>
 #include "blake2-kat.h"
-int main( int argc, char **argv )
+int main( void )
 {
   uint8_t key[BLAKE2B_KEYBYTES];
   uint8_t buf[BLAKE2_KAT_LENGTH];
-  size_t i, step;
+  size_t i, step, outlen;
 
   for( i = 0; i < BLAKE2B_KEYBYTES; ++i ) {
     key[i] = ( uint8_t )i;
@@ -182,7 +182,7 @@ int main( int argc, char **argv )
   /* (Test of input lengths mostly covered by blake2s tests) */
 
   /* Test simple API */
-  for( size_t outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen )
+  for( outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen )
   {
       uint8_t hash[BLAKE2_KAT_LENGTH] = {0};
       blake2xb( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2B_KEYBYTES );
@@ -196,7 +196,7 @@ int main( int argc, char **argv )
 
   /* Test streaming API */
   for(step = 1; step < BLAKE2B_BLOCKBYTES; ++step) {
-    for (size_t outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen) {
+    for (outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen) {
       uint8_t hash[BLAKE2_KAT_LENGTH];
       blake2xb_state S;
       uint8_t * p = buf;

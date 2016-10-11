@@ -51,8 +51,8 @@ static int blake2sp_init_root( blake2s_state *S, size_t outlen, size_t keylen )
   P->fanout = PARALLELISM_DEGREE;
   P->depth = 2;
   store32( &P->leaf_length, 0 );
-  store32( &P->node_offset, 0ULL );
-  store16( &P->xof_length, 0ULL );
+  store32( &P->node_offset, 0 );
+  store16( &P->xof_length, 0 );
   P->node_depth = 1;
   P->inner_length = BLAKE2S_OUTBYTES;
   memset( P->salt, 0, sizeof( P->salt ) );

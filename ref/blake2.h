@@ -123,13 +123,13 @@ extern "C" {
 
   typedef struct blake2b_param__ blake2b_param;
 
-  typedef struct blake2xs_state__ 
+  typedef struct blake2xs_state__
   {
     blake2s_state S[1];
     blake2s_param P[1];
   } blake2xs_state;
 
-  typedef struct blake2xb_state__ 
+  typedef struct blake2xb_state__
   {
     blake2b_state S[1];
     blake2b_param P[1];

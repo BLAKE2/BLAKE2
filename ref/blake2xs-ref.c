@@ -166,7 +166,7 @@ int main( void )
 {
   uint8_t key[BLAKE2S_KEYBYTES];
   uint8_t buf[BLAKE2_KAT_LENGTH];
-  size_t i, step;
+  size_t i, step, outlen;
 
   for( i = 0; i < BLAKE2S_KEYBYTES; ++i ) {
     key[i] = ( uint8_t )i;
@@ -180,10 +180,12 @@ int main( void )
   /* (Test of input lengths mostly covered by blake2s tests) */
 
   /* Test simple API */
-  for( size_t outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen )
+  for( outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen )
   {
       uint8_t hash[BLAKE2_KAT_LENGTH] = {0};
-      blake2xs( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2S_KEYBYTES );
+      if( blake2xs( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2S_KEYBYTES ) < 0 ) {
+        goto fail;
+      }
 
       if( 0 != memcmp( hash, blake2xs_keyed_kat[outlen-1], outlen ) )
       {
@@ -193,7 +195,7 @@ int main( void )
 
   /* Test streaming API */
   for(step = 1; step < BLAKE2S_BLOCKBYTES; ++step) {
-    for (size_t outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen) {
+    for (outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen) {
       uint8_t hash[BLAKE2_KAT_LENGTH];
       blake2xs_state S;
       uint8_t * p = buf;
