@@ -65,6 +65,29 @@ do  \
   \
 } while (0)
 
+#define MAKE_XOF_KAT(name) \
+do  \
+{ \
+  printf( "static const uint8_t " #name "_kat[BLAKE2_KAT_LENGTH][BLAKE2_KAT_LENGTH] = \n{\n" ); \
+   \
+  for( size_t i = 0; i < LENGTH; ++i ) \
+  { \
+    name( hash, i, in, LENGTH, NULL, 0 ); \
+    printf( "\t{\n\t\t" ); \
+ \
+  for( int j = 0; j < i; ++j ) \
+      printf( "0x%02X%s", hash[j], j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
+      \
+  for( int j = i; j < LENGTH; ++j ) \
+      printf( "0x00%s", ( j + 1 ) == LENGTH ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
+      \
+    printf( "\t},\n" ); \
+  } \
+   \
+  printf( "};\n\n\n\n\n" ); \
+  \
+} while (0)
+
 
 int main( int argc, char **argv )
 {
@@ -90,6 +113,7 @@ int main( int argc, char **argv )
   MAKE_KEYED_KAT( blake2sp, BLAKE2S );
   MAKE_KAT( blake2bp, BLAKE2B );
   MAKE_KEYED_KAT( blake2bp, BLAKE2B );
+  MAKE_XOF_KAT( blake2xs );
   puts( "#endif" );
   return 0;
 }

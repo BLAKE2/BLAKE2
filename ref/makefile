@@ -31,8 +31,8 @@ check:          blake2s blake2b blake2sp blake2bp blake2xs blake2xb
 	        ./blake2xb
 
 kat:
-		$(CC) $(CFLAGS) -o genkat-c genkat-c.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c
-		$(CC) $(CFLAGS) -g -o genkat-json genkat-json.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c
+		$(CC) $(CFLAGS) -o genkat-c genkat-c.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c blake2xs-ref.c blake2xb-ref.c
+		$(CC) $(CFLAGS) -o genkat-json genkat-json.c blake2b-ref.c blake2s-ref.c blake2sp-ref.c blake2bp-ref.c blake2xs-ref.c blake2xb-ref.c
 		./genkat-c > blake2-kat.h
 		./genkat-json > blake2-kat.json
 
