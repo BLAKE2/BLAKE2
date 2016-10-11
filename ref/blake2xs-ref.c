@@ -93,11 +93,12 @@ int blake2xs_final(blake2xs_state *S, void *out, size_t outlen)
   for (i = 0; outlen > 0; ++i) {
     const size_t block_size = (outlen < BLAKE2S_OUTBYTES) ? outlen : BLAKE2S_OUTBYTES;
     /* Initialize state */
+    P->digest_length = block_size;
     store32(&P->node_offset, i);
     blake2s_init_param(C, P);
     /* Process key if needed */
     blake2s_update(C, root, BLAKE2S_OUTBYTES);
-    blake2s_final(C, (uint8_t *)out + i * BLAKE2S_OUTBYTES, BLAKE2S_OUTBYTES);
+    blake2s_final(C, (uint8_t *)out + i * BLAKE2S_OUTBYTES, block_size);
     outlen -= block_size;
   }
   secure_zero_memory(root, sizeof(root));
@@ -132,12 +133,12 @@ int blake2xs(void *out, size_t outlen, const void *in, size_t inlen, const void 
     return -1;
   }
 
-  /* Compute the root of the tree */
+  /* Absorb the input message */
   if (blake2xs_update(S, in, inlen) < 0) {
     return -1;
   }
 
-  /* Compute the final hash using the counter construction */
+  /* Compute the root node of the tree and the final hash using the counter construction */
   return blake2xs_final(S, out, outlen);
 }
 
