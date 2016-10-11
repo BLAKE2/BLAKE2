@@ -30,7 +30,11 @@ int blake2xb_init( blake2xb_state *S, const size_t outlen, const void *key, size
     return -1;
   }
 
-  if (NULL == key || keylen > BLAKE2B_KEYBYTES) {
+  if (NULL != key && keylen > BLAKE2B_KEYBYTES) {
+    return -1;
+  }
+
+  if (keylen > 0 && key == NULL) {
     return -1;
   }
 

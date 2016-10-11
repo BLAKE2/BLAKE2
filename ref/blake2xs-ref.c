@@ -30,7 +30,11 @@ int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size
     return -1;
   }
 
-  if (NULL == key || keylen > BLAKE2S_KEYBYTES) {
+  if (NULL != key && keylen > BLAKE2B_KEYBYTES) {
+    return -1;
+  }
+
+  if (keylen > 0 && key == NULL) {
     return -1;
   }
 
@@ -180,7 +184,6 @@ int main( void )
   {
       uint8_t hash[BLAKE2_KAT_LENGTH] = {0};
       blake2xs( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2S_KEYBYTES );
-
 
       if( 0 != memcmp( hash, blake2xs_keyed_kat[outlen-1], outlen ) )
       {
