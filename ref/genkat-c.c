@@ -76,7 +76,7 @@ do  \
     printf( "\t{\n\t\t" ); \
  \
   for( int j = 0; j < i; ++j ) \
-      printf( "0x%02X%s", hash[j], j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
+      printf( "0x%02X%s", hash[j], ( j + 1 ) == LENGTH ? "\n"  : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
       \
   for( int j = i; j < LENGTH; ++j ) \
       printf( "0x00%s", ( j + 1 ) == LENGTH ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
@@ -99,7 +99,7 @@ do  \
     printf( "\t{\n\t\t" ); \
  \
   for( int j = 0; j < i; ++j ) \
-      printf( "0x%02X%s", hash[j], j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
+      printf( "0x%02X%s", hash[j], ( j + 1 ) == LENGTH ? "\n" : j  && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
       \
   for( int j = i; j < LENGTH; ++j ) \
       printf( "0x00%s", ( j + 1 ) == LENGTH ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
@@ -138,8 +138,8 @@ int main( int argc, char **argv )
   MAKE_KEYED_KAT( blake2bp, BLAKE2B );
   MAKE_XOF_KAT( blake2xs );
   MAKE_XOF_KEYED_KAT( blake2xs, BLAKE2S );
-  //MAKE_XOF_KAT( blake2xs );
-  //MAKE_XOF_KEYED_KAT( blake2xs, BLAKE2S );
+  MAKE_XOF_KAT( blake2xb );
+  MAKE_XOF_KEYED_KAT( blake2xb, BLAKE2B );
   puts( "#endif" );
   return 0;
 }

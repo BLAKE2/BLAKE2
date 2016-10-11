@@ -52,8 +52,8 @@ int blake2xs_update( blake2xs_state *S, const void *in, size_t inlen ) {
   return blake2s_update( S->S, in, inlen );
 }
 
-int blake2xs_final(blake2xs_state *S, void *out, size_t outlen)
-{
+int blake2xs_final(blake2xs_state *S, void *out, size_t outlen) {
+
   blake2s_state C[1];
   blake2s_param P[1];
   uint16_t xof_length = load16(&S->P->xof_length);
