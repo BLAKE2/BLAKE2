@@ -94,7 +94,8 @@ extern "C" {
     uint8_t  fanout;        /* 3 */
     uint8_t  depth;         /* 4 */
     uint32_t leaf_length;   /* 8 */
-    uint8_t  node_offset[6];/* 14 */
+    uint32_t node_offset;  /* 12 */
+    uint16_t xof_length;    /* 14 */
     uint8_t  node_depth;    /* 15 */
     uint8_t  inner_length;  /* 16 */
     /* uint8_t  reserved[0]; */
@@ -111,7 +112,8 @@ extern "C" {
     uint8_t  fanout;        /* 3 */
     uint8_t  depth;         /* 4 */
     uint32_t leaf_length;   /* 8 */
-    uint64_t node_offset;   /* 16 */
+    uint32_t node_offset;   /* 12 */
+    uint32_t xof_length;    /* 16 */
     uint8_t  node_depth;    /* 17 */
     uint8_t  inner_length;  /* 18 */
     uint8_t  reserved[14];  /* 32 */

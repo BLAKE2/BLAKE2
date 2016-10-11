@@ -64,6 +64,17 @@ static BLAKE2_INLINE uint64_t load64( const void *src )
 #endif
 }
 
+static BLAKE2_INLINE void store16( void *dst, uint16_t w )
+{
+#if defined(NATIVE_LITTLE_ENDIAN)
+  memcpy(dst, &w, sizeof w);
+#else
+  uint8_t *p = ( uint8_t * )dst;
+  *p++ = ( uint8_t )w; w >>= 8;
+  *p++ = ( uint8_t )w;
+#endif
+}
+
 static BLAKE2_INLINE void store32( void *dst, uint32_t w )
 {
 #if defined(NATIVE_LITTLE_ENDIAN)
