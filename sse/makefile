@@ -37,4 +37,4 @@ kat:
 		./genkat-json > blake2-kat.json
 
 clean:
-		rm -rf *.o genkat-c genkat-json $(BLAKE2BINS)
+		rm -rf *.o genkat-c genkat-json $(BLAKEBINS)
