@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O3 -I../testvectors
+CFLAGS=-O3 -I../testvectors -Wall
 BLAKEBINS=blake2s blake2b blake2sp blake2bp blake2xs blake2xb
 
 all:		$(BLAKEBINS) check
@@ -37,4 +37,4 @@ kat:
 		./genkat-json > blake2-kat.json
 
 clean:
-		rm -rf *.o genkat-c genkat-json $(BLAKEBINS)
+		rm -rf *.o genkat-c genkat-json blake2-kat.h blake2-kat.json $(BLAKEBINS)
