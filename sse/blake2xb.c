@@ -1,17 +1,17 @@
 /*
    BLAKE2 reference source code package - reference C implementations
-
-   Copyright 2016, JP Aumasson <jeanphilippe.aumasson@gmail.com>.
-   Copyright 2016, Samuel Neves <sneves@dei.uc.pt>.
-
+  
+   Copyright 2016, JP Aumasson <jeanphilippe.aumasson@gmail.com>.  
+   Copyright 2016, Samuel Neves <sneves@dei.uc.pt>.  
+   
    You may use this under the terms of the CC0, the OpenSSL Licence, or
    the Apache Public License 2.0, at your option.  The terms of these
    licenses can be found at:
-
+  
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-
+  
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
@@ -116,7 +116,9 @@ int blake2xb_final( blake2xb_state *S, void *out, size_t outlen) {
     blake2b_init_param(C, P);
     /* Process key if needed */
     blake2b_update(C, root, BLAKE2B_OUTBYTES);
-    blake2b_final(C, (uint8_t *)out + i * BLAKE2B_OUTBYTES, block_size);
+    if (blake2b_final(C, (uint8_t *)out + i * BLAKE2B_OUTBYTES, block_size) < 0 ) {
+        return -1;
+    }
     outlen -= block_size;
   }
   secure_zero_memory(root, sizeof(root));
@@ -153,9 +155,7 @@ int blake2xb(void *out, size_t outlen, const void *in, size_t inlen, const void 
   }
 
   /* Absorb the input message */
-  if (blake2xb_update(S, in, inlen) < 0) {
-    return -1;
-  }
+  blake2xb_update(S, in, inlen);
 
   /* Compute the root node of the tree and the final hash using the counter construction */
   return blake2xb_final(S, out, outlen);
@@ -185,8 +185,9 @@ int main( void )
   for( outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen )
   {
       uint8_t hash[BLAKE2_KAT_LENGTH] = {0};
-      blake2xb( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2B_KEYBYTES );
-
+      if( blake2xb( hash, outlen, buf, BLAKE2_KAT_LENGTH, key, BLAKE2B_KEYBYTES ) < 0 ) {
+        goto fail;
+      }
 
       if( 0 != memcmp( hash, blake2xb_keyed_kat[outlen-1], outlen ) )
       {
