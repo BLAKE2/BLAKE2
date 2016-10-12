@@ -1,17 +1,17 @@
 /*
    BLAKE2 reference source code package - reference C implementations
-  
-   Copyright 2016, JP Aumasson <jeanphilippe.aumasson@gmail.com>.  
-   Copyright 2016, Samuel Neves <sneves@dei.uc.pt>.  
-   
+
+   Copyright 2016, JP Aumasson <jeanphilippe.aumasson@gmail.com>.
+   Copyright 2016, Samuel Neves <sneves@dei.uc.pt>.
+
    You may use this under the terms of the CC0, the OpenSSL Licence, or
    the Apache Public License 2.0, at your option.  The terms of these
    licenses can be found at:
-  
+
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-  
+
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
@@ -23,8 +23,11 @@
 #include "blake2.h"
 #include "blake2-impl.h"
 
+int blake2xs_init( blake2xs_state *S, const size_t outlen ) {
+  return blake2xs_init_key(S, outlen, NULL, 0);
+}
 
-int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen )
+int blake2xs_init_key( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen )
 {
   if ( outlen == 0 || outlen > 0xFFFFUL ) {
     return -1;
@@ -34,7 +37,7 @@ int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size
     return -1;
   }
 
-  if (NULL == key & keylen > 0) {
+  if (NULL == key && keylen > 0) {
     return -1;
   }
 
@@ -148,7 +151,7 @@ int blake2xs(void *out, size_t outlen, const void *in, size_t inlen, const void 
     return -1;
 
   /* Initialize the root block structure */
-  if (blake2xs_init(S, outlen, key, keylen) < 0) {
+  if (blake2xs_init_key(S, outlen, key, keylen) < 0) {
     return -1;
   }
 
@@ -202,7 +205,7 @@ int main( void )
       size_t mlen = BLAKE2_KAT_LENGTH;
       int err = 0;
 
-      if( (err = blake2xs_init(&S, outlen, key, BLAKE2S_KEYBYTES)) < 0 ) {
+      if( (err = blake2xs_init_key(&S, outlen, key, BLAKE2S_KEYBYTES)) < 0 ) {
         goto fail;
       }
 

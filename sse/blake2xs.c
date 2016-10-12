@@ -23,8 +23,11 @@
 #include "blake2.h"
 #include "blake2-impl.h"
 
+int blake2xs_init( blake2xs_state *S, const size_t outlen ) {
+  return blake2xs_init_key(S, outlen, NULL, 0);
+}
 
-int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen )
+int blake2xs_init_key( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen )
 {
   if ( outlen == 0 || outlen > 0xFFFFUL ) {
     return -1;
@@ -34,7 +37,7 @@ int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size
     return -1;
   }
 
-  if (NULL == key & keylen > 0) {
+  if (NULL == key && keylen > 0) {
     return -1;
   }
 
@@ -148,7 +151,7 @@ int blake2xs(void *out, size_t outlen, const void *in, size_t inlen, const void 
     return -1;
 
   /* Initialize the root block structure */
-  if (blake2xs_init(S, outlen, key, keylen) < 0) {
+  if (blake2xs_init_key(S, outlen, key, keylen) < 0) {
     return -1;
   }
 
@@ -202,7 +205,7 @@ int main( void )
       size_t mlen = BLAKE2_KAT_LENGTH;
       int err = 0;
 
-      if( (err = blake2xs_init(&S, outlen, key, BLAKE2S_KEYBYTES)) < 0 ) {
+      if( (err = blake2xs_init_key(&S, outlen, key, BLAKE2S_KEYBYTES)) < 0 ) {
         goto fail;
       }
 

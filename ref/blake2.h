@@ -164,13 +164,16 @@ extern "C" {
   int blake2bp_update( blake2bp_state *S, const void *in, size_t inlen );
   int blake2bp_final( blake2bp_state *S, void *out, size_t outlen );
 
-int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen );
-int blake2xs_update( blake2xs_state *S, const void *in, size_t inlen );
-int blake2xs_final(blake2xs_state *S, void *out, size_t outlen);
+  /* Variable output length API */
+  int blake2xs_init( blake2xs_state *S, const size_t outlen );
+  int blake2xs_init_key( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen );
+  int blake2xs_update( blake2xs_state *S, const void *in, size_t inlen );
+  int blake2xs_final(blake2xs_state *S, void *out, size_t outlen);
 
-int blake2xb_init( blake2xb_state *S, const size_t outlen, const void *key, size_t keylen );
-int blake2xb_update( blake2xb_state *S, const void *in, size_t inlen );
-int blake2xb_final(blake2xb_state *S, void *out, size_t outlen);
+  int blake2xb_init( blake2xb_state *S, const size_t outlen );
+  int blake2xb_init_key( blake2xb_state *S, const size_t outlen, const void *key, size_t keylen );
+  int blake2xb_update( blake2xb_state *S, const void *in, size_t inlen );
+  int blake2xb_final(blake2xb_state *S, void *out, size_t outlen);
 
   /* Simple API */
   int blake2s( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
