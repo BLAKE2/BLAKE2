@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -I../testvectors -Wall --std=c89
+CFLAGS=-O2 -I../testvectors -Wall -Wextra -std=c89 -pedantic -Wno-long-long
 BLAKEBINS=blake2s blake2b blake2sp blake2bp blake2xs blake2xb
 
 all:		$(BLAKEBINS) check
