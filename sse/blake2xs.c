@@ -34,7 +34,7 @@ int blake2xs_init( blake2xs_state *S, const size_t outlen, const void *key, size
     return -1;
   }
 
-  if (keylen > 0 && key == NULL) {
+  if (NULL == key & keylen > 0) {
     return -1;
   }
 
