@@ -28,13 +28,13 @@
 #define MAKE_KAT(name,size_prefix) \
 do  \
 { \
-  for( size_t i = 0; i < LENGTH; ++i ) \
+  for( i = 0; i < LENGTH; ++i ) \
   { \
     printf("\n{\n");\
      \
     printf("    \"hash\": \"" #name "\",\n");\
     printf("    \"in\": \"");\
-    for( int j = 0; j < i; ++j ) printf( "%02x", in[j]);\
+    for( j = 0; j < i; ++j ) printf( "%02x", in[j]);\
     \
     printf( "\",\n" ); \
     printf("    \"key\": \"\",\n");\
@@ -42,7 +42,7 @@ do  \
     \
     name( hash, size_prefix ## _OUTBYTES, in, i, NULL, 0 ); \
     \
-    for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
+    for( j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
         printf( "%02x", hash[j]);\
     printf( "\"\n" ); \
     printf( "}," ); \
@@ -52,23 +52,23 @@ do  \
 #define MAKE_KEYED_KAT(name,size_prefix) \
 do  \
 { \
-  for( size_t i = 0; i < LENGTH; ++i ) \
+  for( i = 0; i < LENGTH; ++i ) \
   { \
     printf("\n{\n");\
      \
     printf("    \"hash\": \"" #name "\",\n");\
     printf("    \"in\": \"");\
-    for( int j = 0; j < i; ++j ) printf( "%02x", in[j]);\
+    for( j = 0; j < i; ++j ) printf( "%02x", in[j]);\
     \
     printf( "\",\n" ); \
     printf("    \"key\": \"");\
-    for( int j = 0; j < size_prefix ## _KEYBYTES; ++j ) printf( "%02x", key[j]);\
+    for( j = 0; j < size_prefix ## _KEYBYTES; ++j ) printf( "%02x", key[j]);\
     printf("\",\n");\
     printf("    \"out\": \"");\
     \
     name( hash, size_prefix ## _OUTBYTES, in, i, key, size_prefix ## _KEYBYTES ); \
     \
-    for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
+    for( j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
         printf( "%02x", hash[j]);\
     printf( "\"\n" ); \
     printf( "}," ); \
@@ -78,13 +78,13 @@ do  \
 #define MAKE_XOF_KAT(name) \
 do  \
 { \
-  for( size_t i = 1; i <= LENGTH; ++i ) \
+  for( i = 1; i <= LENGTH; ++i ) \
   { \
     printf("\n{\n");\
      \
     printf("    \"hash\": \"" #name "\",\n");\
     printf("    \"in\": \"");\
-    for( int j = 0; j < LENGTH; ++j ) printf( "%02x", in[j]);\
+    for( j = 0; j < LENGTH; ++j ) printf( "%02x", in[j]);\
     \
     printf( "\",\n" ); \
     printf("    \"key\": \"\",\n");\
@@ -92,7 +92,7 @@ do  \
     \
     name( hash, i, in, LENGTH, NULL, 0 ); \
     \
-    for( int j = 0; j < i; ++j ) \
+    for( j = 0; j < i; ++j ) \
         printf( "%02x", hash[j]);\
     printf( "\"\n" ); \
     printf( "}," ); \
@@ -102,23 +102,23 @@ do  \
 #define MAKE_XOF_KEYED_KAT(name,size_prefix) \
 do  \
 { \
-  for( size_t i = 1; i <= LENGTH; ++i ) \
+  for( i = 1; i <= LENGTH; ++i ) \
   { \
     printf("\n{\n");\
      \
     printf("    \"hash\": \"" #name "\",\n");\
     printf("    \"in\": \"");\
-    for( int j = 0; j < LENGTH; ++j ) printf( "%02x", in[j]);\
+    for( j = 0; j < LENGTH; ++j ) printf( "%02x", in[j]);\
     \
     printf( "\",\n" ); \
     printf("    \"key\": \"");\
-    for( int j = 0; j < size_prefix ## _KEYBYTES; ++j ) printf( "%02x", key[j]);\
+    for( j = 0; j < size_prefix ## _KEYBYTES; ++j ) printf( "%02x", key[j]);\
     printf("\",\n");\
     printf("    \"out\": \"");\
     \
     name( hash, i, in, LENGTH, key, size_prefix ## _KEYBYTES ); \
     \
-    for( int j = 0; j < i; ++j ) \
+    for( j = 0; j < i; ++j ) \
         printf( "%02x", hash[j]);\
     printf( "\"\n" ); \
     printf( "}," ); \
@@ -126,16 +126,17 @@ do  \
 } while (0)
 
 
-int main( int argc, char **argv )
+int main()
 {
   uint8_t key[64] = {0};
   uint8_t in[LENGTH] = {0};
   uint8_t hash[LENGTH] = {0};
+  size_t i, j;
 
-  for( size_t i = 0; i < sizeof( in ); ++i )
+  for( i = 0; i < sizeof( in ); ++i )
     in[i] = i;
 
-  for( size_t i = 0; i < sizeof( key ); ++i )
+  for( i = 0; i < sizeof( key ); ++i )
     key[i] = i;
 
   printf("[");

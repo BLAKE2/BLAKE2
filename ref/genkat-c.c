@@ -30,12 +30,12 @@ do  \
 { \
   printf( "static const uint8_t " #name "_kat[BLAKE2_KAT_LENGTH][" #size_prefix "_OUTBYTES] = \n{\n" ); \
    \
-  for( size_t i = 0; i < LENGTH; ++i ) \
+  for( i = 0; i < LENGTH; ++i ) \
   { \
     name( hash, size_prefix ## _OUTBYTES, in, i, NULL, 0 ); \
     printf( "\t{\n\t\t" ); \
  \
-  for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
+  for( j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
       printf( "0x%02X%s", hash[j], ( j + 1 ) == size_prefix ## _OUTBYTES ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
       \
     printf( "\t},\n" ); \
@@ -50,12 +50,12 @@ do  \
 { \
   printf( "static const uint8_t " #name "_keyed_kat[BLAKE2_KAT_LENGTH][" #size_prefix "_OUTBYTES] = \n{\n" ); \
   \
-  for( size_t i = 0; i < LENGTH; ++i ) \
+  for( i = 0; i < LENGTH; ++i ) \
   { \
   name( hash, size_prefix ## _OUTBYTES, in, i, key, size_prefix ## _KEYBYTES ); \
   printf( "\t{\n\t\t" ); \
   \
-  for( int j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
+  for( j = 0; j < size_prefix ## _OUTBYTES; ++j ) \
   printf( "0x%02X%s", hash[j], ( j + 1 ) == size_prefix ## _OUTBYTES ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
   \
   printf( "\t},\n" ); \
@@ -70,15 +70,15 @@ do  \
 { \
   printf( "static const uint8_t " #name "_kat[BLAKE2_KAT_LENGTH][BLAKE2_KAT_LENGTH] = \n{\n" ); \
    \
-  for( size_t i = 1; i <= LENGTH; ++i ) \
+  for( i = 1; i <= LENGTH; ++i ) \
   { \
     name( hash, i, in, LENGTH, NULL, 0 ); \
     printf( "\t{\n\t\t" ); \
  \
-  for( int j = 0; j < i; ++j ) \
+  for( j = 0; j < i; ++j ) \
       printf( "0x%02X%s", hash[j], ( j + 1 ) == LENGTH ? "\n"  : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
       \
-  for( int j = i; j < LENGTH; ++j ) \
+  for( j = i; j < LENGTH; ++j ) \
       printf( "0x00%s", ( j + 1 ) == LENGTH ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
       \
     printf( "\t},\n" ); \
@@ -93,15 +93,15 @@ do  \
 { \
   printf( "static const uint8_t " #name "_keyed_kat[BLAKE2_KAT_LENGTH][BLAKE2_KAT_LENGTH] = \n{\n" ); \
    \
-  for( size_t i = 1; i <= LENGTH; ++i ) \
+  for( i = 1; i <= LENGTH; ++i ) \
   { \
     name( hash, i, in, LENGTH, key, size_prefix ## _KEYBYTES ); \
     printf( "\t{\n\t\t" ); \
  \
-  for( int j = 0; j < i; ++j ) \
+  for( j = 0; j < i; ++j ) \
       printf( "0x%02X%s", hash[j], ( j + 1 ) == LENGTH ? "\n" : j  && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
       \
-  for( int j = i; j < LENGTH; ++j ) \
+  for( j = i; j < LENGTH; ++j ) \
       printf( "0x00%s", ( j + 1 ) == LENGTH ? "\n" : j && !( ( j + 1 ) % 8 ) ? ",\n\t\t" : ", " ); \
       \
     printf( "\t},\n" ); \
@@ -112,16 +112,17 @@ do  \
 } while (0)
 
 
-int main( int argc, char **argv )
+int main()
 {
   uint8_t key[64] = {0};
   uint8_t in[LENGTH] = {0};
   uint8_t hash[LENGTH] = {0};
+  size_t i, j;
 
-  for( size_t i = 0; i < sizeof( in ); ++i )
+  for( i = 0; i < sizeof( in ); ++i )
     in[i] = i;
 
-  for( size_t i = 0; i < sizeof( key ); ++i )
+  for( i = 0; i < sizeof( key ); ++i )
     key[i] = i;
 
   puts( "#ifndef BLAKE2_KAT_H\n"
