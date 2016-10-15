@@ -14,3 +14,8 @@ sse/blake2b
 sse/blake2bp
 sse/blake2s
 sse/blake2sp
+csharp/.vs
+*.xproj.user
+project.lock.json
+**/obj/**
+**/bin/**
