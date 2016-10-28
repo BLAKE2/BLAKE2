@@ -36,6 +36,7 @@ static int blake2bp_init_leaf( blake2b_state *S, size_t outlen, size_t keylen, u
   P->depth = 2;
   P->leaf_length = 0;
   P->node_offset = offset;
+  P->xof_length = 0;
   P->node_depth = 0;
   P->inner_length = BLAKE2B_OUTBYTES;
   memset( P->reserved, 0, sizeof( P->reserved ) );
@@ -53,6 +54,7 @@ static int blake2bp_init_root( blake2b_state *S, size_t outlen, size_t keylen )
   P->depth = 2;
   P->leaf_length = 0;
   P->node_offset = 0;
+  P->xof_length = 0;
   P->node_depth = 1;
   P->inner_length = BLAKE2B_OUTBYTES;
   memset( P->reserved, 0, sizeof( P->reserved ) );

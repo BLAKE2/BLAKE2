@@ -1,14 +1,14 @@
 /*
    BLAKE2 reference source code package - b2sum tool
-  
+
    Copyright 2012, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
    terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
    your option.  The terms of these licenses can be found at:
-  
+
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-  
+
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
@@ -256,12 +256,11 @@ int main( int argc, char **argv )
   unsigned long outbytes = 0;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
   bool bsdstyle = false;
-  int c;
+  int c, i;
   opterr = 1;
 
   while( 1 )
   {
-    int this_option_optind = optind ? optind : 1;
     int option_index = 0;
     char *end = NULL;
     unsigned long outbits;
@@ -343,7 +342,7 @@ int main( int argc, char **argv )
   if( optind == argc )
     argv[argc++] = (char *) "-";
 
-  for( int i = optind; i < argc; ++i )
+  for( i = optind; i < argc; ++i )
   {
     FILE *f = NULL;
     if( argv[i][0] == '-' && argv[i][1] == '\0' )
@@ -363,6 +362,7 @@ int main( int argc, char **argv )
     }
     else
     {
+      size_t j;
       if( bsdstyle )
       {
         if( outbytes < maxbytes )
@@ -371,7 +371,7 @@ int main( int argc, char **argv )
           printf( "%s (%s) = ", algorithm, argv[i] );
       }
 
-      for( size_t j = 0; j < outbytes; ++j )
+      for( j = 0; j < outbytes; ++j )
         printf( "%02x", hash[j] );
 
       if( bsdstyle )

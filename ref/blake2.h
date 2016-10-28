@@ -1,14 +1,14 @@
 /*
    BLAKE2 reference source code package - reference C implementations
-  
+
    Copyright 2012, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
    terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
    your option.  The terms of these licenses can be found at:
-  
+
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-  
+
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
@@ -94,7 +94,8 @@ extern "C" {
     uint8_t  fanout;        /* 3 */
     uint8_t  depth;         /* 4 */
     uint32_t leaf_length;   /* 8 */
-    uint8_t  node_offset[6];/* 14 */
+    uint32_t node_offset;  /* 12 */
+    uint16_t xof_length;    /* 14 */
     uint8_t  node_depth;    /* 15 */
     uint8_t  inner_length;  /* 16 */
     /* uint8_t  reserved[0]; */
@@ -111,7 +112,8 @@ extern "C" {
     uint8_t  fanout;        /* 3 */
     uint8_t  depth;         /* 4 */
     uint32_t leaf_length;   /* 8 */
-    uint64_t node_offset;   /* 16 */
+    uint32_t node_offset;   /* 12 */
+    uint32_t xof_length;    /* 16 */
     uint8_t  node_depth;    /* 17 */
     uint8_t  inner_length;  /* 18 */
     uint8_t  reserved[14];  /* 32 */
@@ -120,6 +122,18 @@ extern "C" {
   });
 
   typedef struct blake2b_param__ blake2b_param;
+
+  typedef struct blake2xs_state__
+  {
+    blake2s_state S[1];
+    blake2s_param P[1];
+  } blake2xs_state;
+
+  typedef struct blake2xb_state__
+  {
+    blake2b_state S[1];
+    blake2b_param P[1];
+  } blake2xb_state;
 
   /* Padded structs result in a compile-time error */
   enum {
@@ -150,12 +164,26 @@ extern "C" {
   int blake2bp_update( blake2bp_state *S, const void *in, size_t inlen );
   int blake2bp_final( blake2bp_state *S, void *out, size_t outlen );
 
+  /* Variable output length API */
+  int blake2xs_init( blake2xs_state *S, const size_t outlen );
+  int blake2xs_init_key( blake2xs_state *S, const size_t outlen, const void *key, size_t keylen );
+  int blake2xs_update( blake2xs_state *S, const void *in, size_t inlen );
+  int blake2xs_final(blake2xs_state *S, void *out, size_t outlen);
+
+  int blake2xb_init( blake2xb_state *S, const size_t outlen );
+  int blake2xb_init_key( blake2xb_state *S, const size_t outlen, const void *key, size_t keylen );
+  int blake2xb_update( blake2xb_state *S, const void *in, size_t inlen );
+  int blake2xb_final(blake2xb_state *S, void *out, size_t outlen);
+
   /* Simple API */
   int blake2s( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
   int blake2b( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
 
   int blake2sp( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
   int blake2bp( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
+
+  int blake2xs( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
+  int blake2xb( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
 
   /* This is simply an alias for blake2b */
   int blake2( void *out, size_t outlen, const void *in, size_t inlen, const void *key, size_t keylen );
