@@ -243,7 +243,7 @@ int blake2s_final( blake2s_state *S, void *out, size_t outlen )
   uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
   size_t i;
 
-  if( out == NULL || outlen < S->outlen )
+  if( out == NULL || outlen < S->outlen || BLAKE2S_OUTBYTES < outlen)
     return -1;
 
   if( blake2s_is_lastblock( S ) )

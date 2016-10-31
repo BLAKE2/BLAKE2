@@ -248,7 +248,7 @@ int blake2b_update( blake2b_state *S, const void *pin, size_t inlen )
 
 int blake2b_final( blake2b_state *S, void *out, size_t outlen )
 {
-  if( out == NULL || outlen < S->outlen )
+  if( out == NULL || outlen < S->outlen || BLAKE2B_OUTBYTES < outlen)
     return -1;
 
   if( blake2b_is_lastblock( S ) )
@@ -259,7 +259,7 @@ int blake2b_final( blake2b_state *S, void *out, size_t outlen )
   memset( S->buf + S->buflen, 0, BLAKE2B_BLOCKBYTES - S->buflen ); /* Padding */
   blake2b_compress( S, S->buf );
 
-  memcpy( out, &S->h[0], S->outlen );
+  memcpy( out, &S->h[0], outlen );
   return 0;
 }
 
