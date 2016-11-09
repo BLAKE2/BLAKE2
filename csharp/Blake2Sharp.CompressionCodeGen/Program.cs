@@ -66,7 +66,7 @@ namespace Blake2Sharp.CompressionCodeGen
 				d ^= a;
 				d = " + RotateRight("d", 16) + @";
 				c = c + d;
-				b ^= c; 
+				b ^= c;
 				b = " + RotateRight("b", 63) + @";";
 			s = s.Replace("a", "v" + a);
 			s = s.Replace("b", "v" + b);
