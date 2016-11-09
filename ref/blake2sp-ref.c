@@ -1,14 +1,14 @@
 /*
    BLAKE2 reference source code package - reference C implementations
-  
+
    Copyright 2012, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
    terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
    your option.  The terms of these licenses can be found at:
-  
+
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-  
+
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
@@ -26,6 +26,20 @@
 
 #define PARALLELISM_DEGREE 8
 
+/*
+  blake2sp_init_param defaults to setting the expecting output length
+  from the digest_length parameter block field.
+
+  In some cases, however, we do not want this, as the output length
+  of these instances is given by inner_length instead.
+*/
+static int blake2sp_init_leaf_param( blake2s_state *S, const blake2s_param *P )
+{
+  int err = blake2s_init_param(S, P);
+  S->outlen = P->inner_length;
+  return err;
+}
+
 static int blake2sp_init_leaf( blake2s_state *S, size_t outlen, size_t keylen, uint64_t offset )
 {
   blake2s_param P[1];
@@ -40,7 +54,7 @@ static int blake2sp_init_leaf( blake2s_state *S, size_t outlen, size_t keylen, u
   P->inner_length = BLAKE2S_OUTBYTES;
   memset( P->salt, 0, sizeof( P->salt ) );
   memset( P->personal, 0, sizeof( P->personal ) );
-  return blake2s_init_param( S, P );
+  return blake2sp_init_leaf_param( S, P );
 }
 
 static int blake2sp_init_root( blake2s_state *S, size_t outlen, size_t keylen )
