@@ -1,14 +1,14 @@
 /*
    BLAKE2 reference source code package - optimized C implementations
-  
+
    Copyright 2012, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
    terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
    your option.  The terms of these licenses can be found at:
-  
+
    - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
    - OpenSSL license   : https://www.openssl.org/source/license.html
    - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
-  
+
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
@@ -169,7 +169,7 @@ buf = _mm_perm_epi8(t1, m3, _mm_set_epi32(TOB(3),TOB(2),TOB(1),TOB(7)) );
 #define LOAD_MSG_8_3(buf) \
 t0 = _mm_perm_epi8(m0, m2, _mm_set_epi32(TOB(6),TOB(1),TOB(0),TOB(0)) ); \
 buf = _mm_perm_epi8(t0, m3, _mm_set_epi32(TOB(3),TOB(2),TOB(5),TOB(4)) ); \
- 
+
 #define LOAD_MSG_8_4(buf) \
 buf = _mm_perm_epi8(m0, m1, _mm_set_epi32(TOB(5),TOB(4),TOB(7),TOB(2)) );
 
@@ -189,4 +189,3 @@ t1 = _mm_perm_epi8(m0, m2, _mm_set_epi32(TOB(0),TOB(0),TOB(0),TOB(7)) ); \
 buf = _mm_perm_epi8(t1, m3, _mm_set_epi32(TOB(3),TOB(4),TOB(6),TOB(0)) );
 
 #endif
-
