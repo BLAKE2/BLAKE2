@@ -181,8 +181,8 @@ int main( void )
     buf[i] = ( uint8_t )i;
   }
 
-  /* Testing length of ouputs rather than inputs */
-  /* (Test of input lengths mostly covered by blake2s tests) */
+  /* Testing length of outputs rather than inputs */
+  /* (Test of input lengths mostly covered by blake2b tests) */
 
   /* Test simple API */
   for( outlen = 1; outlen <= BLAKE2_KAT_LENGTH; ++outlen )

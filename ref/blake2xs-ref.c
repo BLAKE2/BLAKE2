@@ -179,7 +179,7 @@ int main( void )
     buf[i] = ( uint8_t )i;
   }
 
-  /* Testing length of ouputs rather than inputs */
+  /* Testing length of outputs rather than inputs */
   /* (Test of input lengths mostly covered by blake2s tests) */
 
   /* Test simple API */
