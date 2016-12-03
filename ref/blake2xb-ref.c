@@ -105,6 +105,7 @@ int blake2xb_final( blake2xb_state *S, void *out, size_t outlen) {
   /* Set common block structure values */
   /* Copy values from parent instance, and only change the ones below */
   memcpy(P, S->P, sizeof(blake2b_param));
+  P->key_length = 0;
   P->fanout = 0;
   P->depth = 0;
   store32(&P->leaf_length, BLAKE2B_OUTBYTES);
