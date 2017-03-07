@@ -25,10 +25,10 @@
 
 #define LENGTH 256
 
-#define MAKE_KAT(name, size_prefix)                                                                \
+#define MAKE_KAT(name, size_prefix, first)                                                         \
   do {                                                                                             \
     for (i = 0; i < LENGTH; ++i) {                                                                 \
-      printf("\n{\n");                                                                             \
+      printf("%s\n{\n", i == 0 && first ? "" : ",");                                               \
                                                                                                    \
       printf("    \"hash\": \"" #name "\",\n");                                                    \
       printf("    \"in\": \"");                                                                    \
@@ -44,14 +44,14 @@
       for (j = 0; j < size_prefix##_OUTBYTES; ++j)                                                 \
         printf("%02x", hash[j]);                                                                   \
       printf("\"\n");                                                                              \
-      printf("},");                                                                                \
+      printf("}");                                                                                 \
     }                                                                                              \
   } while (0)
 
-#define MAKE_KEYED_KAT(name, size_prefix)                                                          \
+#define MAKE_KEYED_KAT(name, size_prefix, first)                                                   \
   do {                                                                                             \
     for (i = 0; i < LENGTH; ++i) {                                                                 \
-      printf("\n{\n");                                                                             \
+      printf("%s\n{\n", i == 0 && first ? "" : ",");                                               \
                                                                                                    \
       printf("    \"hash\": \"" #name "\",\n");                                                    \
       printf("    \"in\": \"");                                                                    \
@@ -70,14 +70,14 @@
       for (j = 0; j < size_prefix##_OUTBYTES; ++j)                                                 \
         printf("%02x", hash[j]);                                                                   \
       printf("\"\n");                                                                              \
-      printf("},");                                                                                \
+      printf("}");                                                                                 \
     }                                                                                              \
   } while (0)
 
-#define MAKE_XOF_KAT(name)                                                                         \
+#define MAKE_XOF_KAT(name, first)                                                                  \
   do {                                                                                             \
     for (i = 1; i <= LENGTH; ++i) {                                                                \
-      printf("\n{\n");                                                                             \
+      printf("%s\n{\n", i == 1 && first ? "" : ",");                                               \
                                                                                                    \
       printf("    \"hash\": \"" #name "\",\n");                                                    \
       printf("    \"in\": \"");                                                                    \
@@ -93,14 +93,14 @@
       for (j = 0; j < i; ++j)                                                                      \
         printf("%02x", hash[j]);                                                                   \
       printf("\"\n");                                                                              \
-      printf("},");                                                                                \
+      printf("}");                                                                                 \
     }                                                                                              \
   } while (0)
 
-#define MAKE_XOF_KEYED_KAT(name, size_prefix)                                                      \
+#define MAKE_XOF_KEYED_KAT(name, size_prefix, first)                                               \
   do {                                                                                             \
     for (i = 1; i <= LENGTH; ++i) {                                                                \
-      printf("\n{\n");                                                                             \
+      printf("%s\n{\n", i == 1 && first ? "" : ",");                                               \
                                                                                                    \
       printf("    \"hash\": \"" #name "\",\n");                                                    \
       printf("    \"in\": \"");                                                                    \
@@ -119,7 +119,7 @@
       for (j = 0; j < i; ++j)                                                                      \
         printf("%02x", hash[j]);                                                                   \
       printf("\"\n");                                                                              \
-      printf("},");                                                                                \
+      printf("}");                                                                                 \
     }                                                                                              \
   } while (0)
 
@@ -136,18 +136,18 @@ int main() {
     key[i] = i;
 
   printf("[");
-  MAKE_KAT(blake2s, BLAKE2S);
-  MAKE_KEYED_KAT(blake2s, BLAKE2S);
-  MAKE_KAT(blake2b, BLAKE2B);
-  MAKE_KEYED_KAT(blake2b, BLAKE2B);
-  MAKE_KAT(blake2sp, BLAKE2S);
-  MAKE_KEYED_KAT(blake2sp, BLAKE2S);
-  MAKE_KAT(blake2bp, BLAKE2B);
-  MAKE_KEYED_KAT(blake2bp, BLAKE2B);
-  MAKE_XOF_KAT(blake2xs);
-  MAKE_XOF_KEYED_KAT(blake2xs, BLAKE2S);
-  MAKE_XOF_KAT(blake2xb);
-  MAKE_XOF_KEYED_KAT(blake2xb, BLAKE2B);
+  MAKE_KAT(blake2s, BLAKE2S, 1);
+  MAKE_KEYED_KAT(blake2s, BLAKE2S, 0);
+  MAKE_KAT(blake2b, BLAKE2B, 0);
+  MAKE_KEYED_KAT(blake2b, BLAKE2B, 0);
+  MAKE_KAT(blake2sp, BLAKE2S, 0);
+  MAKE_KEYED_KAT(blake2sp, BLAKE2S, 0);
+  MAKE_KAT(blake2bp, BLAKE2B, 0);
+  MAKE_KEYED_KAT(blake2bp, BLAKE2B, 0);
+  MAKE_XOF_KAT(blake2xs, 0);
+  MAKE_XOF_KEYED_KAT(blake2xs, BLAKE2S, 0);
+  MAKE_XOF_KAT(blake2xb, 0);
+  MAKE_XOF_KEYED_KAT(blake2xb, BLAKE2B, 0);
   printf("\n]\n");
   fflush(stdout);
   return 0;
