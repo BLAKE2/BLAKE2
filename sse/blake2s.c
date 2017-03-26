@@ -238,7 +238,7 @@ int blake2s_final( blake2s_state *S, void *out, size_t outlen )
   uint8_t buffer[BLAKE2S_OUTBYTES] = {0};
   size_t i;
 
-  if( out == NULL || outlen < S->outlen )
+  if( out == NULL || outlen < S->outlen || BLAKE2S_OUTBYTES < outlen)
     return -1;
 
   if( blake2s_is_lastblock( S ) )
@@ -252,7 +252,7 @@ int blake2s_final( blake2s_state *S, void *out, size_t outlen )
   for( i = 0; i < 8; ++i ) /* Output full hash to temp buffer */
     store32( buffer + sizeof( S->h[i] ) * i, S->h[i] );
 
-  memcpy( out, buffer, S->outlen );
+  memcpy( out, buffer, outlen );
   secure_zero_memory( buffer, sizeof(buffer) );
   return 0;
 }
