@@ -254,6 +254,7 @@ int main( int argc, char **argv )
   unsigned long maxbytes = BLAKE2B_OUTBYTES;
   const char *algorithm = "BLAKE2b";
   unsigned long outbytes = 0;
+  int OUTBYTES_LEN = BLAKE2B_OUTBYTES;
   bool bsdstyle = false;
   int c, i;
   opterr = 1;
@@ -276,28 +277,24 @@ int main( int argc, char **argv )
     case 'a':
       if( 0 == strcmp( optarg, "blake2b" ) )
       {
-        unsigned char hash[BLAKE2B_OUTBYTES] = {0};
         blake2_stream = blake2b_stream;
         maxbytes = BLAKE2B_OUTBYTES;
         algorithm = "BLAKE2b";
       }
       else if ( 0 == strcmp( optarg, "blake2s" ) )
       {
-        unsigned char hash[BLAKE2S_OUTBYTES] = {0};
         blake2_stream = blake2s_stream;
         maxbytes = BLAKE2S_OUTBYTES;
         algorithm = "BLAKE2s";
       }
       else if ( 0 == strcmp( optarg, "blake2bp" ) )
       {
-        unsigned char hash[BLAKE2B_OUTBYTES] = {0};
         blake2_stream = blake2bp_stream;
         maxbytes = BLAKE2B_OUTBYTES;
         algorithm = "BLAKE2bp";
       }
       else if ( 0 == strcmp( optarg, "blake2sp" ) )
       {
-        unsigned char hash[BLAKE2S_OUTBYTES] = {0};
         blake2_stream = blake2sp_stream;
         maxbytes = BLAKE2S_OUTBYTES;
         algorithm = "BLAKE2sp";
@@ -344,6 +341,14 @@ int main( int argc, char **argv )
 
   if( optind == argc )
     argv[argc++] = (char *) "-";
+
+
+    if (0 == strcmp(algorithm, "BLAKE2s") || 0 == strcmp(algorithm, "BLAKE2sp")) {
+        OUTBYTES_LEN = BLAKE2S_OUTBYTES;
+    }
+
+
+  unsigned char hash[OUTBYTES_LEN];
 
   for( i = optind; i < argc; ++i )
   {
