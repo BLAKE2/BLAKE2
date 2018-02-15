@@ -294,7 +294,7 @@ int blake2s( void *out, size_t outlen, const void *in, size_t inlen, const void 
 #if defined(SUPERCOP)
 int crypto_hash( unsigned char *out, unsigned char *in, unsigned long long inlen )
 {
-  return blake2s( out, BLAKE2S_OUTBYTES in, inlen, NULL, 0 );
+  return blake2s( out, BLAKE2S_OUTBYTES, in, inlen, NULL, 0 );
 }
 #endif
 
