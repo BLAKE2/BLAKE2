@@ -18,4 +18,10 @@ ref/blake2xs
 ref/blake2xb
 sse/blake2xs
 sse/blake2xb
+neon/blake2s
+neon/blake2b
+neon/blake2sp
+neon/blake2bp
+neon/blake2xs
+neon/blake2xb
 **tags
