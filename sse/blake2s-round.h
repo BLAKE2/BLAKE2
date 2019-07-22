@@ -56,14 +56,14 @@
   row2 = _mm_roti_epi32(row2, -7);
 
 #define DIAGONALIZE(row1,row2,row3,row4) \
-  row4 = _mm_shuffle_epi32( row4, _MM_SHUFFLE(2,1,0,3) ); \
-  row3 = _mm_shuffle_epi32( row3, _MM_SHUFFLE(1,0,3,2) ); \
-  row2 = _mm_shuffle_epi32( row2, _MM_SHUFFLE(0,3,2,1) );
+  row1 = _mm_shuffle_epi32( row1, _MM_SHUFFLE(2,1,0,3) ); \
+  row4 = _mm_shuffle_epi32( row4, _MM_SHUFFLE(1,0,3,2) ); \
+  row3 = _mm_shuffle_epi32( row3, _MM_SHUFFLE(0,3,2,1) );
 
 #define UNDIAGONALIZE(row1,row2,row3,row4) \
-  row4 = _mm_shuffle_epi32( row4, _MM_SHUFFLE(0,3,2,1) ); \
-  row3 = _mm_shuffle_epi32( row3, _MM_SHUFFLE(1,0,3,2) ); \
-  row2 = _mm_shuffle_epi32( row2, _MM_SHUFFLE(2,1,0,3) );
+  row1 = _mm_shuffle_epi32( row1, _MM_SHUFFLE(0,3,2,1) ); \
+  row4 = _mm_shuffle_epi32( row4, _MM_SHUFFLE(1,0,3,2) ); \
+  row3 = _mm_shuffle_epi32( row3, _MM_SHUFFLE(2,1,0,3) );
 
 #if defined(HAVE_XOP)
 #include "blake2s-load-xop.h"
