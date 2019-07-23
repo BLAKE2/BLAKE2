@@ -22,10 +22,13 @@ buf = TOI(_mm_shuffle_ps(TOF(m0), TOF(m1), _MM_SHUFFLE(2,0,2,0)));
 buf = TOI(_mm_shuffle_ps(TOF(m0), TOF(m1), _MM_SHUFFLE(3,1,3,1)));
 
 #define LOAD_MSG_0_3(buf) \
-buf = TOI(_mm_shuffle_ps(TOF(m2), TOF(m3), _MM_SHUFFLE(2,0,2,0)));
+t0 = _mm_shuffle_epi32(m2, _MM_SHUFFLE(3,2,0,1)); \
+t1 = _mm_shuffle_epi32(m3, _MM_SHUFFLE(0,1,3,2)); \
+buf = _mm_blend_epi16(t0, t1, 0xC3);
 
 #define LOAD_MSG_0_4(buf) \
-buf = TOI(_mm_shuffle_ps(TOF(m2), TOF(m3), _MM_SHUFFLE(3,1,3,1)));
+t0 = _mm_blend_epi16(t0, t1, 0x3C); \
+buf = _mm_shuffle_epi32(t0, _MM_SHUFFLE(2,3,0,1));
 
 #define LOAD_MSG_1_1(buf) \
 t0 = _mm_blend_epi16(m1, m2, 0x0C); \
@@ -43,13 +46,13 @@ buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,3,0,1));
 t0 = _mm_slli_si128(m1, 4); \
 t1 = _mm_blend_epi16(m2, t0, 0x30); \
 t2 = _mm_blend_epi16(m0, t1, 0xF0); \
-buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,3,0,1));
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(3,0,1,2));
 
 #define LOAD_MSG_1_4(buf) \
 t0 = _mm_unpackhi_epi32(m0,m1); \
 t1 = _mm_slli_si128(m3, 4); \
 t2 = _mm_blend_epi16(t0, t1, 0x0C); \
-buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,3,0,1));
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(3,0,1,2));
 
 #define LOAD_MSG_2_1(buf) \
 t0 = _mm_unpackhi_epi32(m2,m3); \
@@ -67,13 +70,13 @@ buf = _mm_blend_epi16(t1, t2, 0xC0);
 t0 = _mm_blend_epi16(m0, m2, 0x3C); \
 t1 = _mm_srli_si128(m1, 12); \
 t2 = _mm_blend_epi16(t0,t1,0x03); \
-buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,0,3,2));
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(0,3,2,1));
 
 #define LOAD_MSG_2_4(buf) \
 t0 = _mm_slli_si128(m3, 4); \
 t1 = _mm_blend_epi16(m0, m1, 0x33); \
 t2 = _mm_blend_epi16(t1, t0, 0xC0); \
-buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(0,1,2,3));
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,2,3,0));
 
 #define LOAD_MSG_3_1(buf) \
 t0 = _mm_unpackhi_epi32(m0,m1); \
@@ -90,12 +93,11 @@ buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,0,1,3));
 #define LOAD_MSG_3_3(buf) \
 t0 = _mm_blend_epi16(m0,m1,0x0F); \
 t1 = _mm_blend_epi16(t0, m3, 0xC0); \
-buf = _mm_shuffle_epi32(t1, _MM_SHUFFLE(3,0,1,2));
+buf = _mm_shuffle_epi32(t1, _MM_SHUFFLE(0,1,2,3));
 
 #define LOAD_MSG_3_4(buf) \
-t0 = _mm_unpacklo_epi32(m0,m2); \
-t1 = _mm_unpackhi_epi32(m1,m2); \
-buf = _mm_unpacklo_epi64(t1,t0);
+t0 = _mm_alignr_epi8(m0, m1, 4); \
+buf = _mm_blend_epi16(t0, m2, 0x33);
 
 #define LOAD_MSG_4_1(buf) \
 t0 = _mm_unpacklo_epi64(m1,m2); \
@@ -111,13 +113,14 @@ buf = _mm_blend_epi16(t0,t1,0x33);
 #define LOAD_MSG_4_3(buf) \
 t0 = _mm_unpackhi_epi64(m3,m1); \
 t1 = _mm_unpackhi_epi64(m2,m0); \
-buf = _mm_blend_epi16(t1,t0,0x33);
+t2 = _mm_blend_epi16(t1,t0,0x33); \
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,1,0,3));
 
 #define LOAD_MSG_4_4(buf) \
 t0 = _mm_blend_epi16(m0,m2,0x03); \
 t1 = _mm_slli_si128(t0, 8); \
 t2 = _mm_blend_epi16(t1,m3,0x0F); \
-buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,2,0,3));
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,0,3,1));
 
 #define LOAD_MSG_5_1(buf) \
 t0 = _mm_unpackhi_epi32(m0,m1); \
@@ -133,12 +136,13 @@ buf = _mm_blend_epi16(t1,t0,0x3C);
 t0 = _mm_blend_epi16(m1,m0,0x0C); \
 t1 = _mm_srli_si128(m3, 4); \
 t2 = _mm_blend_epi16(t0,t1,0x30); \
-buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,2,3,0));
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,3,0,1));
 
 #define LOAD_MSG_5_4(buf) \
-t0 = _mm_unpacklo_epi64(m1,m2); \
-t1= _mm_shuffle_epi32(m3, _MM_SHUFFLE(0,2,0,1)); \
-buf = _mm_blend_epi16(t0,t1,0x33);
+t0 = _mm_unpacklo_epi64(m2,m1); \
+t1 = _mm_shuffle_epi32(m3, _MM_SHUFFLE(2,0,1,0)); \
+t2 = _mm_srli_si128(t0, 4); \
+buf = _mm_blend_epi16(t1,t2,0x33);
 
 #define LOAD_MSG_6_1(buf) \
 t0 = _mm_slli_si128(m1, 12); \
@@ -154,12 +158,13 @@ buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,1,3,0));
 #define LOAD_MSG_6_3(buf) \
 t0 = _mm_unpacklo_epi64(m0,m2); \
 t1 = _mm_srli_si128(m1, 4); \
-buf = _mm_shuffle_epi32(_mm_blend_epi16(t0,t1,0x0C), _MM_SHUFFLE(2,3,1,0));
+t2 = _mm_blend_epi16(t0,t1,0x0C); \
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(3,1,0,2));
 
 #define LOAD_MSG_6_4(buf) \
 t0 = _mm_unpackhi_epi32(m1,m2); \
 t1 = _mm_unpackhi_epi64(m0,t0); \
-buf = _mm_shuffle_epi32(t1, _MM_SHUFFLE(3,0,1,2));
+buf = _mm_shuffle_epi32(t1, _MM_SHUFFLE(0,1,2,3));
 
 #define LOAD_MSG_7_1(buf) \
 t0 = _mm_unpackhi_epi32(m0,m1); \
@@ -176,12 +181,13 @@ buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,0,2,3));
 t0 = _mm_unpackhi_epi64(m0,m3); \
 t1 = _mm_unpacklo_epi64(m1,m2); \
 t2 = _mm_blend_epi16(t0,t1,0x3C); \
-buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,2,3,1));
+buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(2,3,1,0));
 
 #define LOAD_MSG_7_4(buf) \
 t0 = _mm_unpacklo_epi32(m0,m1); \
 t1 = _mm_unpackhi_epi32(m1,m2); \
-buf = _mm_unpacklo_epi64(t0,t1);
+t2 = _mm_unpacklo_epi64(t0,t1); \
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,1,0,3));
 
 #define LOAD_MSG_8_1(buf) \
 t0 = _mm_unpackhi_epi32(m1,m3); \
@@ -195,13 +201,14 @@ t1 = _mm_blend_epi16(m2,t0,0xF0); \
 buf = _mm_shuffle_epi32(t1,_MM_SHUFFLE(0,2,1,3));
 
 #define LOAD_MSG_8_3(buf) \
-t0 = _mm_blend_epi16(m2,m0,0x0C); \
-t1 = _mm_slli_si128(t0,4); \
-buf = _mm_blend_epi16(t1,m3,0x0F);
+t0 = _mm_unpacklo_epi64(m0,m3); \
+t1 = _mm_srli_si128(m2,8); \
+t2 = _mm_blend_epi16(t0,t1,0x03); \
+buf = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,3,2,0));
 
 #define LOAD_MSG_8_4(buf) \
 t0 = _mm_blend_epi16(m1,m0,0x30); \
-buf = _mm_shuffle_epi32(t0,_MM_SHUFFLE(1,0,3,2));
+buf = _mm_shuffle_epi32(t0,_MM_SHUFFLE(0,3,2,1));
 
 #define LOAD_MSG_9_1(buf) \
 t0 = _mm_blend_epi16(m0,m2,0x03); \
@@ -218,12 +225,12 @@ buf = _mm_shuffle_epi32(t1,_MM_SHUFFLE(1,2,0,3));
 t0 = _mm_unpackhi_epi32(m0,m3); \
 t1 = _mm_unpacklo_epi32(m2,m3); \
 t2 = _mm_unpackhi_epi64(t0,t1); \
-buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(3,0,2,1));
+buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,2,1,3));
 
 #define LOAD_MSG_9_4(buf) \
 t0 = _mm_blend_epi16(m3,m2,0xC0); \
 t1 = _mm_unpacklo_epi32(m0,m3); \
 t2 = _mm_blend_epi16(t0,t1,0x0F); \
-buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,1,2,3));
+buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(1,2,3,0));
 
 #endif
