@@ -14,41 +14,6 @@ set(CMAKE_C_EXTENSIONS OFF)
 # Set flags used in all builds
 set(COMMON_C_FLAGS -Wall -Wextra -Wno-long-long -pedantic)
 
-# Build executables with check definition and target for running them if -DCHECK_BUILD=1 is passed
-if( CHECK_BUILD )
-	include_directories(testvectors)
-	add_executable(blake2s)
-    add_executable(blake2b)
-    add_executable(blake2sp)
-    add_executable(blake2xb)
-    add_executable(blake2bp)
-    add_executable(blake2xs)
-	target_compile_definitions(blake2b  PRIVATE BLAKE2B_SELFTEST )
-	target_compile_definitions(blake2s  PRIVATE BLAKE2S_SELFTEST )
-	target_compile_definitions(blake2sp PRIVATE BLAKE2SP_SELFTEST)
-	target_compile_definitions(blake2xb PRIVATE BLAKE2XB_SELFTEST)
-	target_compile_definitions(blake2bp PRIVATE BLAKE2BP_SELFTEST)
-	target_compile_definitions(blake2xs PRIVATE BLAKE2XS_SELFTEST)
-	add_custom_target(check ALL
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2b>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2bp>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2s>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2sp>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2xb>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2xs>>"
-		DEPENDS blake2b blake2bp blake2s blake2sp blake2xb blake2xs
-	)
-# Build libraries and b2sum is nothing is passed
-else()
-	add_library(blake2s)
-    add_library(blake2b)
-    add_library(blake2sp)
-    add_library(blake2xb)
-    add_library(blake2bp)
-    add_library(blake2xs)
-	add_subdirectory(b2sum)
-endif()
-
 # Check if the compiler supports SSE or NEON flags
 include(CheckCCompilerFlag)
 check_c_compiler_flag(-msse2 SSE2_SUPPORTED)
@@ -81,8 +46,19 @@ endif()
 # Add correct subdirectory based on the above selection
 add_subdirectory(${CONFIGURED_DIRECTORY})
 
-if( NOT CHECK_BUILD )
-# Install binaries to bin, libs to lib and headers to include/blake2 using CMAKE_INSTALL_PREFIX
+if( CHECK_BUILD )
+	add_custom_target(check ALL
+		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2b>>"
+		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2bp>>"
+		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2s>>"
+		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2sp>>"
+		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2xb>>"
+		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2xs>>"
+		DEPENDS blake2b blake2bp blake2s blake2sp blake2xb blake2xs
+	)
+else()
+	add_subdirectory(b2sum)
+	# Install binaries to bin, libs to lib and headers to include/blake2 using CMAKE_INSTALL_PREFIX
 	install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs b2sum RUNTIME DESTINATION bin LIBRARY DESTINATION lib)
 	install(FILES "${CONFIGURED_DIRECTORY}/blake2.h" DESTINATION "include/blake2")
 endif()
