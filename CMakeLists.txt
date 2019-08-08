@@ -4,7 +4,7 @@ cmake_policy(SET CMP0048 NEW)
 project(blake2 LANGUAGES C)
 
 # Set minimum global cmake version
-cmake_minimum_required(VERSION 3.2.0)
+cmake_minimum_required(VERSION 3.14.0)
 
 # Requires no extension and C90 standard
 set(CMAKE_C_STANDARD 90)
