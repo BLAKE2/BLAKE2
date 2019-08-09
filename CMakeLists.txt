@@ -42,6 +42,8 @@ set_property(
 
 set(XOP_ENABLED OFF CACHE BOOL "Adds XOP extension")
 
+set(BUILD_B2SUM ON CACHE BOOL "Build b2sum executable")
+
 # Check for user ISA extension setting
 if ( ISA_EXTENSION STREQUAL "SSE2" )
 	check_c_compiler_flag(-msse2  SSE2_SUPPORTED)
@@ -182,7 +184,9 @@ if( CHECK_BUILD )
 		DEPENDS blake2b blake2bp blake2s blake2sp blake2xb blake2xs
 	)
 else()
-	add_subdirectory(b2sum)
+	if( BUILD_B2SUM )
+		add_subdirectory(b2sum)
+	endif()
 	# Install binaries to bin, libs to lib and headers to include/blake2 using CMAKE_INSTALL_PREFIX
 	install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs b2sum RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
 	install(FILES "${CONFIGURED_DIRECTORY}/blake2.h" DESTINATION "include/blake2")
