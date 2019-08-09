@@ -13,6 +13,9 @@ endmacro()
 # Enable new versioning (old might be depracated)
 cmake_policy(SET CMP0048 NEW)
 
+# Build with install RPATH to prevent relinking which is unsupported by ninja on windows
+set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+
 project(blake2 LANGUAGES C)
 
 # Set minimum global cmake version
