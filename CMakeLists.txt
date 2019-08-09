@@ -37,7 +37,7 @@ set_property(
     "Best SSE2 SSSE3 SSE4.1 AVX AVX2 Neon None"
 )
 
-set(XOP_ENABLED ON CACHE BOOL "Adds XOP extension")
+set(XOP_ENABLED OFF CACHE BOOL "Adds XOP extension")
 
 # Check for user ISA extension setting
 if ( ISA_EXTENSION STREQUAL "SSE2" )
