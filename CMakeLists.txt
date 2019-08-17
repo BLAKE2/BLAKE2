@@ -10,6 +10,9 @@ macro(enableXOP)
 	endif()
 endmacro()
 
+# Set minimum global cmake version
+cmake_minimum_required(VERSION 3.2.0)
+
 # Enable new versioning (old might be depracated)
 cmake_policy(SET CMP0048 NEW)
 
@@ -17,9 +20,6 @@ cmake_policy(SET CMP0048 NEW)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
 
 project(blake2 LANGUAGES C)
-
-# Set minimum global cmake version
-cmake_minimum_required(VERSION 3.14.0)
 
 # Requires no extension and C90 standard
 set(CMAKE_C_STANDARD 90)
@@ -172,24 +172,17 @@ endif()
 # Add correct subdirectory based on the above selection
 add_subdirectory(${CONFIGURED_DIRECTORY})
 
-# Add checks if a check build
-if( CHECK_BUILD )
-	add_custom_target(check ALL
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2b>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2bp>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2s>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2sp>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2xb>>"
-		COMMAND "$<SHELL_PATH:$<TARGET_FILE:blake2xs>>"
-		DEPENDS blake2b blake2bp blake2s blake2sp blake2xb blake2xs
-	)
+# Add tests if a check build
+if( BUILD_TESTING )
+	enable_testing()
+	add_test(NAME blake2b  COMMAND $<TARGET_FILE:blake2b> )
+	add_test(NAME blake2s  COMMAND $<TARGET_FILE:blake2s> )
+	add_test(NAME blake2sp COMMAND $<TARGET_FILE:blake2sp>)
+	add_test(NAME blake2xb COMMAND $<TARGET_FILE:blake2xb>)
+	add_test(NAME blake2bp COMMAND $<TARGET_FILE:blake2bp>)
+	add_test(NAME blake2xs COMMAND $<TARGET_FILE:blake2xs>)
 else()
 	if( BUILD_B2SUM )
 		add_subdirectory(b2sum)
-		install(TARGETS b2sum RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
 	endif()
-	# Install binaries to bin, libs to lib and headers to include/blake2 using CMAKE_INSTALL_PREFIX
-	install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
-	install(FILES "${CONFIGURED_DIRECTORY}/blake2.h" DESTINATION "include/blake2")
 endif()
-
