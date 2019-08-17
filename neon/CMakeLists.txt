@@ -110,4 +110,4 @@ target_sources(blake2xs
 )
 
 # Install binaries to bin, libs to lib and headers to include/blake2 using CMAKE_INSTALL_PREFIX
-install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include/blake2)
