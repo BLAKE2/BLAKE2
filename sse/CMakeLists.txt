@@ -19,7 +19,7 @@ foreach(BLAKE2_TARGET IN LISTS BLAKE2_TARGETS)
 	target_include_directories(${BLAKE2_TARGET}  
 		PUBLIC 
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-			$<INSTALL_INTERFACE:include/blake2>
+			$<INSTALL_INTERFACE:include>
 	)
 	set_target_properties(${BLAKE2_TARGET} PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/blake2.h")
 endforeach()
