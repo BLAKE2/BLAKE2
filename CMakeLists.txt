@@ -21,6 +21,9 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
 
 project(blake2 LANGUAGES C)
 
+# Include GNU install dirs for standard dirs
+include(GNUInstallDirs)
+
 # Requires no extension and C90 standard
 set(CMAKE_C_STANDARD 90)
 set(CMAKE_C_STANDARD_REQUIRED ON)

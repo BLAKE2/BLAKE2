@@ -27,12 +27,30 @@ else()
     add_library(blake2xs "")
 endif()
 
-target_include_directories(blake2b  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
-target_include_directories(blake2s  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
-target_include_directories(blake2sp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
-target_include_directories(blake2xb PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
-target_include_directories(blake2bp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
-target_include_directories(blake2xs PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories(blake2b  
+	PUBLIC 
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:include/blake2>)
+target_include_directories(blake2s  
+	PUBLIC 
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:include/blake2>)
+target_include_directories(blake2sp  
+	PUBLIC 
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:include/blake2>)
+target_include_directories(blake2xb 
+	PUBLIC 
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:include/blake2>)
+target_include_directories(blake2bp  
+	PUBLIC 
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:include/blake2>)
+target_include_directories(blake2xs  
+	PUBLIC 
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:include/blake2>)
 
 set_target_properties(blake2b PROPERTIES PUBLIC_HEADER "blake2.h")
 set_target_properties(blake2s PROPERTIES PUBLIC_HEADER "blake2.h")
@@ -121,4 +139,15 @@ target_sources(blake2xs
 )
 
 # Install binaries to bin, libs to lib and headers to include/blake2 using CMAKE_INSTALL_PREFIX
-install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include/blake2)
+install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs 
+EXPORT blake2-targets
+RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
+ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/blake2
+)
+
+install( EXPORT blake2-targets
+		 NAMESPACE blake2::
+		 DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/blake2
+)
