@@ -172,20 +172,34 @@ else()
 	message(FATAL_ERROR "Undefined build, cannot configure!")
 endif()
 
+list(APPEND BLAKE2_TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs)
+
 # Add correct subdirectory based on the above selection
 add_subdirectory(${CONFIGURED_DIRECTORY})
 
 # Add tests if a check build
 if( BUILD_TESTING )
 	enable_testing()
-	add_test(NAME blake2b  COMMAND $<TARGET_FILE:blake2b> )
-	add_test(NAME blake2s  COMMAND $<TARGET_FILE:blake2s> )
-	add_test(NAME blake2sp COMMAND $<TARGET_FILE:blake2sp>)
-	add_test(NAME blake2xb COMMAND $<TARGET_FILE:blake2xb>)
-	add_test(NAME blake2bp COMMAND $<TARGET_FILE:blake2bp>)
-	add_test(NAME blake2xs COMMAND $<TARGET_FILE:blake2xs>)
+	foreach(BLAKE2_TARGET IN LISTS BLAKE2_TARGETS)
+		add_test(NAME ${BLAKE2_TARGET}  COMMAND $<TARGET_FILE:${BLAKE2_TARGET}> )
+	endforeach()
 else()
 	if( BUILD_B2SUM )
 		add_subdirectory(b2sum)
+		list(APPEND BLAKE2_TARGETS b2sum)
 	endif()
 endif()
+
+install(TARGETS ${BLAKE2_TARGETS}
+EXPORT blake2-targets
+RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
+ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/blake2
+)
+
+install( EXPORT blake2-targets
+		 FILE blake2Config.cmake
+		 NAMESPACE blake2::
+		 DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/blake2
+)

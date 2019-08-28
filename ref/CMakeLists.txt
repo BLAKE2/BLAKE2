@@ -5,66 +5,31 @@ add_compile_options( ${B2_COMPILE_OPTIONS} )
 # Build executables with check definition and target for running them if -DCHECK_BUILD=1 is passed
 if( BUILD_TESTING )
 	include_directories(../testvectors)
-	add_executable(blake2s "")
-    add_executable(blake2b "")
-    add_executable(blake2sp "")
-    add_executable(blake2xb "")
-    add_executable(blake2bp "")
-    add_executable(blake2xs "")
-	target_compile_definitions(blake2b  PRIVATE BLAKE2B_SELFTEST )
-	target_compile_definitions(blake2s  PRIVATE BLAKE2S_SELFTEST )
-	target_compile_definitions(blake2sp PRIVATE BLAKE2SP_SELFTEST)
-	target_compile_definitions(blake2xb PRIVATE BLAKE2XB_SELFTEST)
-	target_compile_definitions(blake2bp PRIVATE BLAKE2BP_SELFTEST)
-	target_compile_definitions(blake2xs PRIVATE BLAKE2XS_SELFTEST)
-# Build libraries and b2sum is nothing is passed
-else()
-	add_library(blake2s "")
-    add_library(blake2b "")
-    add_library(blake2sp "")
-    add_library(blake2xb "")
-    add_library(blake2bp "")
-    add_library(blake2xs "")
 endif()
 
-target_include_directories(blake2b  
-	PUBLIC 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<INSTALL_INTERFACE:include/blake2>)
-target_include_directories(blake2s  
-	PUBLIC 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<INSTALL_INTERFACE:include/blake2>)
-target_include_directories(blake2sp  
-	PUBLIC 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<INSTALL_INTERFACE:include/blake2>)
-target_include_directories(blake2xb 
-	PUBLIC 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<INSTALL_INTERFACE:include/blake2>)
-target_include_directories(blake2bp  
-	PUBLIC 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<INSTALL_INTERFACE:include/blake2>)
-target_include_directories(blake2xs  
-	PUBLIC 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-		$<INSTALL_INTERFACE:include/blake2>)
-
-set_target_properties(blake2b PROPERTIES PUBLIC_HEADER "blake2.h")
-set_target_properties(blake2s PROPERTIES PUBLIC_HEADER "blake2.h")
-set_target_properties(blake2sp PROPERTIES PUBLIC_HEADER "blake2.h")
-set_target_properties(blake2xb PROPERTIES PUBLIC_HEADER "blake2.h")
-set_target_properties(blake2bp PROPERTIES PUBLIC_HEADER "blake2.h")
-set_target_properties(blake2xs PROPERTIES PUBLIC_HEADER "blake2.h")
+foreach(BLAKE2_TARGET IN LISTS BLAKE2_TARGETS)
+	if( BUILD_TESTING )
+		add_executable(${BLAKE2_TARGET} "")
+		string(TOUPPER "${BLAKE2_TARGET}" BLAKE2_TARGET_UPPER)
+		target_compile_definitions(${BLAKE2_TARGET}  PRIVATE ${BLAKE2_TARGET_UPPER}_SELFTEST )
+	else()
+		add_library(${BLAKE2_TARGET} "")
+	endif()
+	
+	target_include_directories(${BLAKE2_TARGET}  
+		PUBLIC 
+			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+			$<INSTALL_INTERFACE:include/blake2>
+	)
+	set_target_properties(${BLAKE2_TARGET} PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/blake2.h")
+endforeach()
 
 target_sources(blake2b
     PRIVATE
 		blake2b-ref.c
 		blake2-impl.h
 	#Headers
-		blake2.h
+		${CMAKE_CURRENT_LIST_DIR}/blake2.h
 )
 
 target_sources(blake2s
@@ -72,7 +37,7 @@ target_sources(blake2s
 		blake2s-ref.c
 		blake2-impl.h
 	#Headers
-		blake2.h
+		${CMAKE_CURRENT_LIST_DIR}/blake2.h
 )
 
 target_sources(blake2sp
@@ -81,7 +46,7 @@ target_sources(blake2sp
 		blake2s-ref.c
 		blake2-impl.h
 	#Headers
-		blake2.h
+		${CMAKE_CURRENT_LIST_DIR}/blake2.h
 )
 
 target_sources(blake2xb
@@ -90,7 +55,7 @@ target_sources(blake2xb
 		blake2b-ref.c
 		blake2-impl.h
 	#Headers
-		blake2.h
+		${CMAKE_CURRENT_LIST_DIR}/blake2.h
 )
 
 target_sources(blake2bp
@@ -99,7 +64,7 @@ target_sources(blake2bp
 		blake2b-ref.c
 		blake2-impl.h
 	#Headers
-		blake2.h
+		${CMAKE_CURRENT_LIST_DIR}/blake2.h
 )
 
 target_sources(blake2xs
@@ -108,18 +73,5 @@ target_sources(blake2xs
 		blake2s-ref.c
 		blake2-impl.h
 	#Headers
-		blake2.h
-)
-
-install(TARGETS blake2s blake2b blake2sp blake2xb blake2bp blake2xs 
-EXPORT blake2-targets
-RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
-ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} 
-LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} 
-PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/blake2
-)
-
-install( EXPORT blake2-targets
-		 NAMESPACE blake2::
-		 DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/blake2
+		${CMAKE_CURRENT_LIST_DIR}/blake2.h
 )
