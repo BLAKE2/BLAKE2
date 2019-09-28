@@ -25,7 +25,7 @@ project(blake2 LANGUAGES C)
 include(GNUInstallDirs)
 
 # Requires no extension and C90 standard
-set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
