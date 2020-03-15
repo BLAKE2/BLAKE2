@@ -1,4 +1,8 @@
-set(B2_COMPILE_OPTIONS -O3 -Wall -Wextra -Wno-long-long -march=native)
+if(NOT MSVC)
+	set(B2_COMPILE_OPTIONS -O3 -Wall -Wextra -Wno-long-long -march=native)
+else()
+	set(B2_COMPILE_OPTIONS -Wall)
+endif()
 
 add_executable(b2sum "")
 
