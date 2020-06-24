@@ -15,6 +15,9 @@
 #ifndef BLAKE2S_LOAD_SSE2_H
 #define BLAKE2S_LOAD_SSE2_H
 
+/* SSE2 loads and stores */
+#include <emmintrin.h>
+
 #define LOAD_MSG_0_1(buf) buf = _mm_set_epi32(m6,m4,m2,m0)
 #define LOAD_MSG_0_2(buf) buf = _mm_set_epi32(m7,m5,m3,m1)
 #define LOAD_MSG_0_3(buf) buf = _mm_set_epi32(m12,m10,m8,m14)
