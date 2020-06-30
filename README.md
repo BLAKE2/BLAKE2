@@ -9,6 +9,10 @@ This is the reference source code package of BLAKE2, which includes
   optimized for speed on CPUs supporting SSE2, SSSE3, SSE4.1, AVX, or
   XOP.
 
+* `neon/`: Implementations of BLAKE2{s,b} using the NEON/ASIMD ARM instruction set.
+
+* `power8/`: Implementations of BLAKE2{s,b} for POWER8, using the VSX and Altivec extensions.
+
 * `csharp/`: C# implementation of BLAKE2b.
 
 * `b2sum/`: Command line utility to hash files, based on the `sse/`
