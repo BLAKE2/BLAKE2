@@ -1,0 +1,231 @@
+#   BLAKE2 reference source code package - Travis testing configuration
+#
+#   Copyright 2020, Samuel Neves <sneves@dei.uc.pt>.  You may use this under the
+#   terms of the CC0, the OpenSSL Licence, or the Apache Public License 2.0, at
+#   your option.  The terms of these licenses can be found at:
+#
+#   - CC0 1.0 Universal : http://creativecommons.org/publicdomain/zero/1.0
+#   - OpenSSL license   : https://www.openssl.org/source/license.html
+#   - Apache 2.0        : http://www.apache.org/licenses/LICENSE-2.0
+#
+#   More information about the BLAKE2 hash function can be found at
+#   https://blake2.net.
+
+# DO NOT create top level (global) keys like env, arch, os, compiler.
+# The top level/global keys invoke [unwanted] matrix expansion. Also
+# see https://stackoverflow.com/q/58473000/608639 and
+# https://docs.travis-ci.com/user/reference/overview/ and
+# https://docs.travis-ci.com/user/multi-cpu-architectures and
+# https://github.com/travis-ci/travis-yml/blob/master/schema.json.
+
+language: c
+dist: bionic
+
+git:
+  depth: 5
+
+# Use jobs rather than matrix since we are precisely specifiying our
+# test cases. Do not move any of the keys (env, os, arch, compiler, etc)
+# into global. Putting them in global invokes the matrix expansion.
+jobs:
+  include:
+    # AMD64 testing
+    - name: GCC, amd64 (ref)
+      os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: GCC, amd64 (sse)
+      os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_DIR=sse
+        - MAKEFILE=makefile
+    - name: Clang, amd64 (ref)
+      os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - CC=clang-8
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: Clang, amd64 (sse)
+      os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - CC=clang-8
+        - BUILD_DIR=sse
+        - MAKEFILE=makefile
+    # OS X testing
+    #   - OS X 10.15.4 uses Xcode 11.6
+    #   - OS X 10.11 uses Xcode 7.3
+    - name: Clang, OS X, amd64 (ref)
+      os: osx
+      osx_image: xcode11.6
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: Clang, OS X, amd64 (sse)
+      os: osx
+      osx_image: xcode11.6
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: Clang, OS X, amd64 (ref)
+      os: osx
+      osx_image: xcode7.3
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: Clang, OS X, amd64 (sse)
+      os: osx
+      osx_image: xcode7.3
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    # Aarch64 testing
+    - name: GCC, aarch64 (ref)
+      os: linux
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: GCC, aarch64 (neon)
+      os: linux
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_DIR=neon
+        - MAKEFILE=makefile-aarch64
+    - name: Clang, aarch64 (ref)
+      os: linux
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - CC=clang-8
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: Clang, aarch64 (neon)
+      os: linux
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - CC=clang-8
+        - BUILD_DIR=neon
+        - MAKEFILE=makefile-aarch64
+    # PowerPC testing
+    - name: GCC, ppc64le (ref)
+      os: linux
+      arch: ppc64le
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: GCC, ppc64le (power8)
+      os: linux
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_DIR=power8
+        - MAKEFILE=makefile
+    - name: Clang, ppc64le (ref)
+      os: linux
+      arch: ppc64le
+      compiler: clang
+      dist: bionic
+      env:
+        - CC=clang-8
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: Clang, ppc64le (power8)
+      os: linux
+      arch: ppc64le
+      compiler: clang
+      dist: bionic
+      env:
+        - CC=clang-8
+        - BUILD_DIR=power8
+        - MAKEFILE=makefile
+    # s390x testing
+    - name: GCC, s390x (ref)
+      os: linux
+      arch: s390x
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+    - name: Clang, s390x (ref)
+      os: linux
+      arch: s390x
+      compiler: clang
+      dist: bionic
+      env:
+        - CC=clang-8
+        - BUILD_DIR=ref
+        - MAKEFILE=makefile
+
+  allow_failures:
+    # Clang has a fair amount of trouble
+    # on platforms Apple does not support
+    - os: linux
+      arch: s390x
+      compiler: clang
+    # Clang 7.0 and below will likely have trouble on ppc64le
+    # due to https://bugs.llvm.org/show_bug.cgi?id=39704.
+    # Also see https://bugs.llvm.org/show_bug.cgi?id=46571.
+    - os: linux
+      arch: ppc64le
+      compiler: clang
+    # And https://bugs.llvm.org/show_bug.cgi?id=46572
+    - os: linux
+      arch: arm64
+      compiler: clang
+
+before_install:
+  - |
+    # Clang 7 compiler is completely broken on PPC64 and s390x
+    # Clang 8 is needed for OpenMP on Aarch64
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$TRAVIS_COMPILER" == "clang" ]]; then
+        # https://github.com/travis-ci/travis-ci/issues/9037
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
+        sudo apt-get -qq -y install --no-install-recommends clang-8 || true
+        sudo apt-get -qq -y install --no-install-recommends libomp-8-dev || true
+        sudo apt-get -qq -y install --no-install-recommends libomp5-8 || true
+    fi
+
+script:
+  - |
+    cd "${BUILD_DIR}"
+    make CC="${CC}" -f "${MAKEFILE}" -j 3
+
+# Whitelist branches to avoid testing feature branches twice
+branches:
+  only:
+    - master
+    - /\/ci$/
+
+#notifications:
+#  email:
+#    recipients:
+#      - blake2-build@example.com
+#    on_success: always # default: change
+#    on_failure: always # default: always
