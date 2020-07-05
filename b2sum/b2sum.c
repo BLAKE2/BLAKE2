@@ -21,7 +21,8 @@
 
 #include <ctype.h>
 #include <unistd.h>
-#include <getopt.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #include "blake2.h"
@@ -247,6 +248,10 @@ static void usage( char **argv, int errcode )
   exit( errcode );
 }
 
+/* getopt_long is missing on AIX and some other OSes.   */
+/* That leaves two choices. First, use Gnulib for the   */
+/* functionality. Second, roll our own. Rolling our own */
+/* is trivial and does not introduce an ext dependency. */
 
 int main( int argc, char **argv )
 {
@@ -256,44 +261,44 @@ int main( int argc, char **argv )
   unsigned long outbytes = 0;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
   bool bsdstyle = false;
-  int c, i;
-  opterr = 1;
+  int idx, i;
 
-  while( 1 )
+  /* Step over argv[0] */
+  idx = 1;
+
+  while( idx < argc && argv[idx] != NULL )
   {
-    int option_index = 0;
     char *end = NULL;
     unsigned long outbits;
-    static struct option long_options[] = {
-      { "help",  no_argument, 0,  0  },
-      { "tag",   no_argument, 0,  0  },
-      { NULL, 0, NULL, 0 }
-    };
 
-    c = getopt_long( argc, argv, "a:l:", long_options, &option_index );
-    if( c == -1 ) break;
-    switch( c )
+    /* Algorithm options */
+    if ( 0 == strcmp( argv[idx], "-a" ) || 0 == strcmp( argv[idx], "/a" ) )
     {
-    case 'a':
-      if( 0 == strcmp( optarg, "blake2b" ) )
+      if ( ++idx == argc )
+      {
+        printf( "Missing function name for -a\n" );
+        usage( argv, 111 );
+      }
+
+      if( 0 == strcmp( argv[idx], "blake2b" ) )
       {
         blake2_stream = blake2b_stream;
         maxbytes = BLAKE2B_OUTBYTES;
         algorithm = "BLAKE2b";
       }
-      else if ( 0 == strcmp( optarg, "blake2s" ) )
+      else if ( 0 == strcmp( argv[idx], "blake2s" ) )
       {
         blake2_stream = blake2s_stream;
         maxbytes = BLAKE2S_OUTBYTES;
         algorithm = "BLAKE2s";
       }
-      else if ( 0 == strcmp( optarg, "blake2bp" ) )
+      else if ( 0 == strcmp( argv[idx], "blake2bp" ) )
       {
         blake2_stream = blake2bp_stream;
         maxbytes = BLAKE2B_OUTBYTES;
         algorithm = "BLAKE2bp";
       }
-      else if ( 0 == strcmp( optarg, "blake2sp" ) )
+      else if ( 0 == strcmp( argv[idx], "blake2sp" ) )
       {
         blake2_stream = blake2sp_stream;
         maxbytes = BLAKE2S_OUTBYTES;
@@ -301,33 +306,45 @@ int main( int argc, char **argv )
       }
       else
       {
-        printf( "Invalid function name: `%s'\n", optarg );
+        printf( "Invalid function name: `%s'\n", argv[idx] );
+        usage( argv, 111 );
+      }
+    }
+
+    /* Digest length options */
+    else if ( 0 == strcmp( argv[idx], "-l" ) || 0 == strcmp( argv[idx], "/l" ) )
+    {
+      if ( ++idx == argc )
+      {
+        printf( "Missing length argument for -l\n" );
         usage( argv, 111 );
       }
 
-      break;
-
-    case 'l':
-      outbits = strtoul(optarg, &end, 10);
+      outbits = strtoul(argv[idx], &end, 10);
       if( !end || *end != '\0' || outbits % 8 != 0)
       {
-        printf( "Invalid length argument: `%s'\n", optarg);
+        printf( "Invalid length argument: `%s'\n", argv[idx] );
         usage( argv, 111 );
       }
       outbytes = outbits / 8;
-      break;
-
-    case 0:
-      if( 0 == strcmp( "help", long_options[option_index].name ) )
-        usage( argv, 0 );
-      else if( 0 == strcmp( "tag", long_options[option_index].name ) )
-        bsdstyle = true;
-      break;
-
-    case '?':
-      usage( argv, 1 );
-      break;
     }
+
+    /* Output format option */
+    else if ( 0 == strcmp( argv[idx], "--tag" ) )
+        bsdstyle = true;
+
+    /* Help request option */
+    else if ( 0 == strcmp( argv[idx], "--help" ) )
+        usage( argv, 0 );
+    else if ( 0 == strcmp( argv[idx], "-?" ) || 0 == strcmp( argv[idx], "/?" ) )
+        usage( argv, 1 );
+
+    /* No more recognized options. Break to processing files. */
+    else
+      break;
+
+    /* Next argument */
+    idx++;
   }
 
   if(outbytes > maxbytes)
@@ -339,10 +356,10 @@ int main( int argc, char **argv )
   else if( outbytes == 0 )
     outbytes = maxbytes;
 
-  if( optind == argc )
+  if( idx == argc )
     argv[argc++] = (char *) "-";
 
-  for( i = optind; i < argc; ++i )
+  for( i = idx; i < argc; ++i )
   {
     FILE *f = NULL;
     if( argv[i][0] == '-' && argv[i][1] == '\0' )
