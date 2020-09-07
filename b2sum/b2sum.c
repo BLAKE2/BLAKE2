@@ -511,10 +511,12 @@ int main( int argc, char **argv )
         hmac_key_len = outbytes;
       }
 	    /* The indentation is weird because I got lazy and used tab */
+	    /* printf("%s\n", hmac_key); /* Used for debugging or seeing what the key looks like */
             size_t j;
             for(j=0; j<outbytes; ++j){
               hmac_key[j] ^= 0x5C; /* XOR the key with 0x5C */
             }
+	    /* printf("%s\n", hmac_key); /* Used for debugging or seeing what the key looks like */
 	    if( blake2b_stream_hmac( hmac_key, f, hash2, outbytes ) < 0 )
 	    {
 	      fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
@@ -523,12 +525,14 @@ int main( int argc, char **argv )
 	    {
               for(j=0; j<outbytes; ++j){
                 hmac_key[j] ^= 0x5C; /* remove the previous XOR */
-                hmac_key[j] ^= 0x36; /* apply the new XOR */
+                /*hmac_key[j] ^= 0x36; /* apply the new XOR */
                 /*
                   But Alex, why didn't you just merge them into 1 XOR?
                   So people reading this code can see the spec; why else?
                 */
               }
+              
+	    /* printf("%s\n", hmac_key); /* Used for debugging or seeing what the key looks like */
 	      if( blake2b_stream_data_hmac( hmac_key, hash2, outbytes, hash, outbytes ) < 0 )
 	      {
 	        fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
