@@ -245,17 +245,7 @@ int blake2b_stream_hmac( unsigned char *key, FILE *stream, void *resstream, size
   if( !buffer ) return -1;
 
   blake2b_init( S, outbytes );
-  i = 0;
-  while(i < HMAC_MAX_KEY_LEN){
-    for(j=0; j<buffer_length; ++j){
-      if(j < HMAC_MAX_KEY_LEN){
-        buffer[j] = key[j];
-        ++ sum;
-        ++ i;
-      }
-    }
-  }
-  blake2b_update( S, buffer, HMAC_MAX_KEY_LEN );
+  blake2b_update( S, key, outbytes );
 
   while( 1 )
   {
@@ -296,7 +286,6 @@ cleanup_buffer:
 }
 int blake2b_stream_build_key( unsigned char *data, size_t data_len, void *resstream, size_t outbytes )
 {
-  printf("Building key...");
   int ret = -1;
   size_t sum, n;
   blake2b_state S[1];
@@ -311,17 +300,10 @@ int blake2b_stream_build_key( unsigned char *data, size_t data_len, void *resstr
   blake2b_init( S, outbytes );
   
   blake2b_update( S, data, data_len );
-  for(i=0; i<data_len; ++i){
-    if(data_len > buffer_length)
-      buffer[i] = data[data_len - buffer_length + i];
-    else
-      buffer[i] = data[i];
-  }
-  sum = data_len;
+
 
 final_process:;
 
-  if( sum > 0 ) blake2b_update( S, buffer, sum );
 
   blake2b_final( S, resstream, outbytes );
   ret = 0;
@@ -331,7 +313,6 @@ cleanup_buffer:
 }
 int blake2b_stream_data_hmac( unsigned char *key, unsigned char *data, size_t data_len, void *resstream, size_t outbytes )
 {
-  printf("Building key...");
   int ret = -1;
   size_t sum, n;
   blake2b_state S[1];
@@ -344,30 +325,12 @@ int blake2b_stream_data_hmac( unsigned char *key, unsigned char *data, size_t da
   if( !buffer ) return -1;
 
   blake2b_init( S, outbytes );
-    i = 0;
-  while(i < HMAC_MAX_KEY_LEN){
-    for(j=0; j<buffer_length; ++j){
-      if(j < HMAC_MAX_KEY_LEN){
-        buffer[j] = key[j];
-        ++ sum;
-        ++ i;
-      }
-    }
-  }
-  blake2b_update( S, buffer, HMAC_MAX_KEY_LEN );
+  blake2b_update( S, key, outbytes );
   
   blake2b_update( S, data, data_len );
-  for(i=0; i<data_len; ++i){
-    if(data_len > buffer_length)
-      buffer[i] = data[data_len - buffer_length + i];
-    else
-      buffer[i] = data[i];
-  }
-  sum = data_len;
 
 final_process:;
 
-  if( sum > 0 ) blake2b_update( S, buffer, sum );
 
   blake2b_final( S, resstream, outbytes );
   ret = 0;
@@ -487,10 +450,9 @@ int main( int argc, char **argv )
         }
       } else {
         hmac_key_len = 0;
-        while(hmac_key_len < HMAC_MAX_KEY_LEN){
+        while(hmac_key_len < HMAC_MAX_KEY_LEN + 1){
           hmac_key[hmac_key_len++] = 0;
         }
-        hmac_key[HMAC_MAX_KEY_LEN] = 0;
         hmac_key_len = 0;
         while(hmac_key_len < HMAC_MAX_KEY_LEN){
           unsigned char c = optarg[hmac_key_len];
@@ -540,9 +502,11 @@ int main( int argc, char **argv )
     if(use_hmac){
       if(hmac_key_len > outbytes){
         size_t j;
+        printf("Building key...");
         blake2b_stream_build_key( hmac_key, hmac_key_len, hash, outbytes );
         for(j=0; j<outbytes; ++j){
           hmac_key[j] = hash[j];
+          hash[j] = 0;
         }
         hmac_key_len = outbytes;
       }
