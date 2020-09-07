@@ -26,6 +26,9 @@
 
 #include "blake2.h"
 
+/* 256 byte keys should be more than enough for any use-case */
+#define HMAC_MAX_KEY_LEN 256
+
 /* This will help compatibility with coreutils */
 int blake2s_stream( FILE *stream, void *resstream, size_t outbytes )
 {
@@ -228,6 +231,105 @@ cleanup_buffer:
   return ret;
 }
 
+
+int blake2b_stream_hmac( unsigned char *key, FILE *stream, void *resstream, size_t outbytes )
+{
+  int ret = -1;
+  size_t sum, n;
+  blake2b_state S[1];
+  static const size_t buffer_length = 32768;
+  uint8_t *buffer = ( uint8_t * )malloc( buffer_length );
+  size_t i;
+  size_t j;
+
+  if( !buffer ) return -1;
+
+  blake2b_init( S, outbytes );
+  i = 0;
+  while(i < HMAC_MAX_KEY_LEN){
+    for(j=0; j<buffer_length; ++j){
+      if(j < HMAC_MAX_KEY_LEN){
+        buffer[j] = key[j];
+        ++ sum;
+        ++ i;
+      }
+    }
+  }
+  blake2b_update( S, buffer, HMAC_MAX_KEY_LEN );
+
+  while( 1 )
+  {
+    sum = 0;
+
+    while( 1 )
+    {
+      n = fread( buffer + sum, 1, buffer_length - sum, stream );
+      sum += n;
+
+      if( buffer_length == sum )
+        break;
+
+      if( 0 == n )
+      {
+        if( ferror( stream ) )
+          goto cleanup_buffer;
+
+        goto final_process;
+      }
+
+      if( feof( stream ) )
+        goto final_process;
+    }
+
+    blake2b_update( S, buffer, buffer_length );
+  }
+
+final_process:;
+
+  if( sum > 0 ) blake2b_update( S, buffer, sum );
+
+  blake2b_final( S, resstream, outbytes );
+  ret = 0;
+cleanup_buffer:
+  free( buffer );
+  return ret;
+}
+int blake2b_stream_build_key( unsigned char *data, size_t data_len, void *resstream, size_t outbytes )
+{
+  printf("Building key...");
+  int ret = -1;
+  size_t sum, n;
+  blake2b_state S[1];
+  static const size_t buffer_length = 32768;
+  uint8_t *buffer = ( uint8_t * )malloc( buffer_length );
+  size_t block_len;
+  size_t i;
+  size_t j;
+
+  if( !buffer ) return -1;
+
+  blake2b_init( S, outbytes );
+  
+  blake2b_update( S, data, data_len );
+  for(i=0; i<data_len; ++i){
+    if(data_len > buffer_length)
+      buffer[i] = data[data_len - buffer_length + i];
+    else
+      buffer[i] = data[i];
+  }
+  sum = data_len;
+
+final_process:;
+
+  if( sum > 0 ) blake2b_update( S, buffer, sum );
+
+  blake2b_final( S, resstream, outbytes );
+  ret = 0;
+cleanup_buffer:
+  free( buffer );
+  return ret;
+}
+
 typedef int ( *blake2fn )( FILE *, void *, size_t );
 
 
@@ -240,6 +342,8 @@ static void usage( char **argv, int errcode )
   fprintf( out, "\n" );
   fprintf( out, "  -a <algo>    hash algorithm (blake2b is default): \n"
                 "               [blake2b|blake2s|blake2bp|blake2sp]\n" );
+  fprintf( out, "  -h <key>     hash in HMAC mode\n"
+                "               if <key> is '-' stdin will be used (only applies to blake2b)\n" );
   fprintf( out, "  -l <length>  digest length in bits, must not exceed the maximum for\n"
                 "               the selected algorithm and must be a multiple of 8\n" );
   fprintf( out, "  --tag        create a BSD-style checksum\n" );
@@ -255,6 +359,9 @@ int main( int argc, char **argv )
   const char *algorithm = "BLAKE2b";
   unsigned long outbytes = 0;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
+  unsigned char hmac_key[HMAC_MAX_KEY_LEN + 1]; /* add an extra byte to make room for a null-terminator */
+  unsigned char use_hmac = 0;
+  size_t hmac_key_len = 0;
   bool bsdstyle = false;
   int c, i;
   opterr = 1;
@@ -270,7 +377,7 @@ int main( int argc, char **argv )
       { NULL, 0, NULL, 0 }
     };
 
-    c = getopt_long( argc, argv, "a:l:", long_options, &option_index );
+    c = getopt_long( argc, argv, "a:l:h:", long_options, &option_index );
     if( c == -1 ) break;
     switch( c )
     {
@@ -316,7 +423,35 @@ int main( int argc, char **argv )
       }
       outbytes = outbits / 8;
       break;
-
+    case 'h':
+      use_hmac = 0xFF;
+      hmac_key_len = 0;
+      if ( 0 == strcmp( optarg, "-" ) ){
+        hmac_key_len = 0;
+        while(hmac_key_len < HMAC_MAX_KEY_LEN){
+          hmac_key[hmac_key_len++] = 0;
+        }
+        hmac_key[HMAC_MAX_KEY_LEN] = 0;
+        hmac_key_len = 0;
+        while(hmac_key_len < HMAC_MAX_KEY_LEN){
+          unsigned char c = getc(stdin);
+          if(c == '\n' || c == '\r') break;
+          hmac_key[hmac_key_len++] = c;
+        }
+      } else {
+        hmac_key_len = 0;
+        while(hmac_key_len < HMAC_MAX_KEY_LEN){
+          hmac_key[hmac_key_len++] = 0;
+        }
+        hmac_key[HMAC_MAX_KEY_LEN] = 0;
+        hmac_key_len = 0;
+        while(hmac_key_len < HMAC_MAX_KEY_LEN){
+          unsigned char c = optarg[hmac_key_len];
+          if(c == 0) break;
+          hmac_key[hmac_key_len++] = c;
+        }
+      } /* Now you have a zero-padded key, per spec */
+      break;
     case 0:
       if( 0 == strcmp( "help", long_options[option_index].name ) )
         usage( argv, 0 );
@@ -355,29 +490,82 @@ int main( int argc, char **argv )
       fprintf( stderr, "Could not open `%s': %s\n", argv[i], strerror( errno ) );
       continue;
     }
-
-    if( blake2_stream( f, hash, outbytes ) < 0 )
-    {
-      fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
-    }
-    else
-    {
-      size_t j;
-      if( bsdstyle )
-      {
-        if( outbytes < maxbytes )
-          printf( "%s-%lu (%s) = ", algorithm, outbytes * 8, argv[i] );
-        else
-          printf( "%s (%s) = ", algorithm, argv[i] );
+    if(use_hmac){
+      if(hmac_key_len > outbytes){
+        size_t j;
+        blake2b_stream_build_key( hmac_key, hmac_key_len, hash, outbytes );
+        for(j=0; j<outbytes; ++j){
+          hmac_key[j] = hash[j];
+        }
+        hmac_key_len = outbytes;
       }
+	    /* The indentation is weird because I got lazy and used tab */
+            size_t j;
+            for(j=0; j<outbytes; ++j){
+              hmac_key[j] ^= 0x5C; /* XOR the key with 0x5C */
+            }
+	    if( blake2b_stream_hmac( hmac_key, f, hash, outbytes ) < 0 )
+	    {
+	      fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
+	    }
+	    else
+	    {
+              for(j=0; j<outbytes; ++j){
+                hmac_key[j] ^= 0x5C; /* remove the previous XOR */
+                hmac_key[j] ^= 0x36; /* apply the new XOR */
+                /*
+                  But Alex, why didn't you just merge them into 1 XOR?
+                  So people reading this code can see the spec; why else?
+                */
+              }
+	      if( blake2b_stream_hmac( hmac_key, f, hash, outbytes ) < 0 )
+	      {
+	        fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
+	      }
+	      else
+	      {
+		      size_t j;
+		      if( bsdstyle )
+		      {
+			if( outbytes < maxbytes )
+			  printf( "%s-%lu (%s) = ", algorithm, outbytes * 8, argv[i] );
+			else
+			  printf( "%s (%s) = ", algorithm, argv[i] );
+		      }
 
-      for( j = 0; j < outbytes; ++j )
-        printf( "%02x", hash[j] );
+		      for( j = 0; j < outbytes; ++j )
+			printf( "%02x", hash[j] );
 
-      if( bsdstyle )
-        printf( "\n" );
-      else
-        printf( "  %s\n", argv[i] );
+		      if( bsdstyle )
+			printf( "\n" );
+		      else
+			printf( "  %s\n", argv[i] );
+	      }
+            }
+    } else{
+	    if( blake2_stream( f, hash, outbytes ) < 0 )
+	    {
+	      fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
+	    }
+	    else
+	    {
+	      size_t j;
+	      if( bsdstyle )
+	      {
+		if( outbytes < maxbytes )
+		  printf( "%s-%lu (%s) = ", algorithm, outbytes * 8, argv[i] );
+		else
+		  printf( "%s (%s) = ", algorithm, argv[i] );
+	      }
+
+	      for( j = 0; j < outbytes; ++j )
+		printf( "%02x", hash[j] );
+
+	      if( bsdstyle )
+		printf( "\n" );
+	      else
+		printf( "  %s\n", argv[i] );
+	    }
     }
 
     if( f != stdin ) fclose( f );
