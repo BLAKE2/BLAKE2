@@ -329,6 +329,52 @@ cleanup_buffer:
   free( buffer );
   return ret;
 }
+int blake2b_stream_data_hmac( unsigned char *key, unsigned char *data, size_t data_len, void *resstream, size_t outbytes )
+{
+  printf("Building key...");
+  int ret = -1;
+  size_t sum, n;
+  blake2b_state S[1];
+  static const size_t buffer_length = 32768;
+  uint8_t *buffer = ( uint8_t * )malloc( buffer_length );
+  size_t block_len;
+  size_t i;
+  size_t j;
+
+  if( !buffer ) return -1;
+
+  blake2b_init( S, outbytes );
+    i = 0;
+  while(i < HMAC_MAX_KEY_LEN){
+    for(j=0; j<buffer_length; ++j){
+      if(j < HMAC_MAX_KEY_LEN){
+        buffer[j] = key[j];
+        ++ sum;
+        ++ i;
+      }
+    }
+  }
+  blake2b_update( S, buffer, HMAC_MAX_KEY_LEN );
+  
+  blake2b_update( S, data, data_len );
+  for(i=0; i<data_len; ++i){
+    if(data_len > buffer_length)
+      buffer[i] = data[data_len - buffer_length + i];
+    else
+      buffer[i] = data[i];
+  }
+  sum = data_len;
+
+final_process:;
+
+  if( sum > 0 ) blake2b_update( S, buffer, sum );
+
+  blake2b_final( S, resstream, outbytes );
+  ret = 0;
+cleanup_buffer:
+  free( buffer );
+  return ret;
+}
 
 typedef int ( *blake2fn )( FILE *, void *, size_t );
 
@@ -359,6 +405,7 @@ int main( int argc, char **argv )
   const char *algorithm = "BLAKE2b";
   unsigned long outbytes = 0;
   unsigned char hash[BLAKE2B_OUTBYTES] = {0};
+  unsigned char hash2[BLAKE2B_OUTBYTES] = {0};
   unsigned char hmac_key[HMAC_MAX_KEY_LEN + 1]; /* add an extra byte to make room for a null-terminator */
   unsigned char use_hmac = 0;
   size_t hmac_key_len = 0;
@@ -504,7 +551,7 @@ int main( int argc, char **argv )
             for(j=0; j<outbytes; ++j){
               hmac_key[j] ^= 0x5C; /* XOR the key with 0x5C */
             }
-	    if( blake2b_stream_hmac( hmac_key, f, hash, outbytes ) < 0 )
+	    if( blake2b_stream_hmac( hmac_key, f, hash2, outbytes ) < 0 )
 	    {
 	      fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
 	    }
@@ -518,7 +565,7 @@ int main( int argc, char **argv )
                   So people reading this code can see the spec; why else?
                 */
               }
-	      if( blake2b_stream_hmac( hmac_key, f, hash, outbytes ) < 0 )
+	      if( blake2b_stream_data_hmac( hmac_key, hash2, outbytes, hash, outbytes ) < 0 )
 	      {
 	        fprintf( stderr, "Failed to hash `%s'\n", argv[i] );
 	      }
@@ -540,6 +587,11 @@ int main( int argc, char **argv )
 			printf( "\n" );
 		      else
 			printf( "  %s\n", argv[i] );
+		/* clean up */
+		
+		memset(hmac_key, 0, HMAC_MAX_KEY_LEN);
+		memset(hash2, 0, outbytes);
+		memset(hash, 0, outbytes);
 	      }
             }
     } else{
