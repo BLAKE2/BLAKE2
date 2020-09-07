@@ -556,6 +556,12 @@ int main( int argc, char **argv )
 		memset(hmac_key, 0, HMAC_MAX_KEY_LEN);
 		memset(hash2, 0, outbytes);
 		memset(hash, 0, outbytes);
+		/*
+		  Make sure the compiler doesn't optimize away our memory reset; it's a security measure
+		*/
+		printf(hash);
+		printf(hash2);
+		printf(hmac_key);
 	      }
             }
     } else{
@@ -582,6 +588,17 @@ int main( int argc, char **argv )
 	      else
 		printf( "  %s\n", argv[i] );
 	    }
+		/* clean up */
+		
+		memset(hmac_key, 0, HMAC_MAX_KEY_LEN);
+		memset(hash2, 0, outbytes);
+		memset(hash, 0, outbytes);
+		/*
+		  Make sure the compiler doesn't optimize away our memory reset; it's a security measure
+		*/
+		printf(hash);
+		printf(hash2);
+		printf(hmac_key);
     }
 
     if( f != stdin ) fclose( f );
