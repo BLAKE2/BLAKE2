@@ -1,6 +1,6 @@
 CC?=gcc
 ifeq ($(shell uname -m ),arm64)
-	CFLAGS=-march=armv8.4-a -O3 -I../testvectors -Wall -Wextra -std=c89 -pedantic -Wno-long-long
+	CFLAGS=-march=armv8.4-a+sha3 -O3 -I../testvectors -Wall -Wextra -std=c89 -pedantic -Wno-long-long
 else
 	CFLAGS=-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard -O3 -I../testvectors -Wall -Wextra -std=c89 -pedantic -Wno-long-long
 endif

@@ -27,11 +27,27 @@
 
 #define vrorq_n_u64_63(x) veorq_u64(vaddq_u64(x, x), vshrq_n_u64(x, 63))
 
+#if defined(__ARM_FEATURE_SHA3)
 #define G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
-  row4l = veorq_u64(row4l, row1l); row4h = veorq_u64(row4h, row1h); \
-  row4l = vrorq_n_u64_32(row4l); row4h = vrorq_n_u64_32(row4h); \
+  row4l = vxarq_u64(row4l, row1l, 32); row4h = vxarq_u64(row4h, row1h, 32); \
+  row3l = vaddq_u64(row3l, row4l); row3h = vaddq_u64(row3h, row4h); \
+  row2l = vxarq_u64(row2l, row3l, 24); row2h = vxarq_u64(row2h, row3h, 24);
+
+#define G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
+  row4l = vxarq_u64(row4l, row1l, 16); row4h = vxarq_u64(row4h, row1h, 16); \
+  row3l = vaddq_u64(row3l, row4l); row3h = vaddq_u64(row3h, row4h); \
+  row2l = vxarq_u64(row2l, row3l, 63); row2h = vxarq_u64(row2h, row3h, 63);
+
+#else
+/* No SHA3 support */
+#define G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
+  row4l = vxarq_u64(row4l, row1l, 32); row4h = vxarq_u64(row4h, row1h, 32); \
   row3l = vaddq_u64(row3l, row4l); row3h = vaddq_u64(row3h, row4h); \
   row2l = veorq_u64(row2l, row3l); row2h = veorq_u64(row2h, row3h); \
   row2l = vrorq_n_u64_24(row2l); row2h = vrorq_n_u64_24(row2h);
@@ -44,6 +60,7 @@
   row3l = vaddq_u64(row3l, row4l); row3h = vaddq_u64(row3h, row4h); \
   row2l = veorq_u64(row2l, row3l); row2h = veorq_u64(row2h, row3h); \
   row2l = vrorq_n_u64_63(row2l); row2h = vrorq_n_u64_63(row2h);
+#endif
 
 #define DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     t0 = vextq_u64(row2l, row2h, 1); \
