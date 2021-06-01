@@ -27,27 +27,88 @@
 
 #define vrorq_n_u64_63(x) veorq_u64(vaddq_u64(x, x), vshrq_n_u64(x, 63))
 
+/// \brief Three-way XOR
+/// \param a the first value
+/// \param b the second value
+/// \param c the third value
+/// \return three-way exclusive OR of the values
+/// \details VEOR3() performs veor3q_u64(). VEOR3 is provided as GCC inline assembly due
+///  to Clang and lack of support for the intrinsic.
+/// \details VEOR3 requires ARMv8.4.
+inline uint64x2_t VEOR3(uint64x2_t a, uint64x2_t b, uint64x2_t c)
+{
+#if defined(_MSC_VER)
+# error "Not implemented"
+#else
+    uint64x2_t r;
+    __asm__ ("eor3   %0.16b, %1.16b, %2.16b, %3.16b   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "w" (c));
+    return r;
+#endif
+}
+
+/// \brief XOR and rotate
+/// \param a the first value
+/// \param b the second value
+/// \param c the third value
+/// \return two-way exclusive OR of the values, then rotated by imm6
+/// \details VXARQ() performs vxarq_u64(). VXARQ is provided as GCC inline assembly due
+///  to Clang and lack of support for the intrinsic.
+/// \details VXARQ requires ARMv8.4.
+inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b, const int imm6)
+{
+#if defined(_MSC_VER)
+# error "Not implemented"
+#else
+    uint64x2_t r;
+    __asm__ ("xar   %0.2d, %1.2d, %2.2d, %3   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "I" (imm6));
+    return r;
+#endif
+}
+
+/// \brief XOR and rotate
+/// \tparam C the rotate amount
+/// \param a the first value
+/// \param b the second value
+/// \return two-way exclusive OR of the values, then rotated by C
+/// \details VXARQ() performs vxarq_u64(). VXARQ is provided as GCC inline assembly due
+///  to Clang and lack of support for the intrinsic.
+/// \details VXARQ requires ARMv8.4.
+template <unsigned int C>
+inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b)
+{
+#if defined(_MSC_VER)
+# error "Not implemented"
+#else
+    uint64x2_t r;
+    __asm__ ("xar   %0.2d, %1.2d, %2.2d, %3   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "I" (C));
+    return r;
+#endif
+}
+
 #if defined(__ARM_FEATURE_SHA3)
 #define G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
-  row4l = vxarq_u64(row4l, row1l, 32); row4h = vxarq_u64(row4h, row1h, 32); \
+  row4l = VXARQ(row4l, row1l, 32); row4h = VXARQ(row4h, row1h, 32); \
   row3l = vaddq_u64(row3l, row4l); row3h = vaddq_u64(row3h, row4h); \
-  row2l = vxarq_u64(row2l, row3l, 24); row2h = vxarq_u64(row2h, row3h, 24);
+  row2l = VXARQ(row2l, row3l, 24); row2h = VXARQ(row2h, row3h, 24);
 
 #define G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
-  row4l = vxarq_u64(row4l, row1l, 16); row4h = vxarq_u64(row4h, row1h, 16); \
+  row4l = VXARQ(row4l, row1l, 16); row4h = VXARQ(row4h, row1h, 16); \
   row3l = vaddq_u64(row3l, row4l); row3h = vaddq_u64(row3h, row4h); \
-  row2l = vxarq_u64(row2l, row3l, 63); row2h = vxarq_u64(row2h, row3h, 63);
+  row2l = VXARQ(row2l, row3l, 63); row2h = VXARQ(row2h, row3h, 63);
 
 #else
 /* No SHA3 support */
 #define G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
-  row4l = vxarq_u64(row4l, row1l, 32); row4h = vxarq_u64(row4h, row1h, 32); \
+  row4l = VXARQ(row4l, row1l, 32); row4h = VXARQ(row4h, row1h, 32); \
   row3l = vaddq_u64(row3l, row4l); row3h = vaddq_u64(row3h, row4h); \
   row2l = veorq_u64(row2l, row3l); row2h = veorq_u64(row2h, row3h); \
   row2l = vrorq_n_u64_24(row2l); row2h = vrorq_n_u64_24(row2h);

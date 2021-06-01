@@ -175,10 +175,10 @@ static void blake2b_compress( blake2b_state *S, const uint8_t block[BLAKE2B_BLOC
   ROUND( 11 );
 
 #if defined(__ARM_FEATURE_SHA3)
-  vst1q_u64(&S->h[0], veor3q_u64(h0, row1l, row3l));
-  vst1q_u64(&S->h[2], veor3q_u64(h1, row1h, row3h));
-  vst1q_u64(&S->h[4], veor3q_u64(h2, row2l, row4l));
-  vst1q_u64(&S->h[6], veor3q_u64(h3, row2h, row4h));
+  vst1q_u64(&S->h[0], VEOR3(h0, row1l, row3l));
+  vst1q_u64(&S->h[2], VEOR3(h1, row1h, row3h));
+  vst1q_u64(&S->h[4], VEOR3(h2, row2l, row4l));
+  vst1q_u64(&S->h[6], VEOR3(h3, row2h, row4h));
 #else
   vst1q_u64(&S->h[0], veorq_u64(h0, veorq_u64(row1l, row3l)));
   vst1q_u64(&S->h[2], veorq_u64(h1, veorq_u64(row1h, row3h)));
