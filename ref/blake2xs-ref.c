@@ -33,7 +33,7 @@ int blake2xs_init_key( blake2xs_state *S, const size_t outlen, const void *key, 
     return -1;
   }
 
-  if (NULL != key && keylen > BLAKE2B_KEYBYTES) {
+  if (NULL != key && keylen > BLAKE2S_KEYBYTES) {
     return -1;
   }
 
