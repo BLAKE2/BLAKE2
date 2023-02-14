@@ -16,7 +16,7 @@
 #define BLAKE2_CONFIG_H
 
 /* These don't work everywhere */
-#if defined(__SSE2__) || defined(__x86_64__) || defined(__amd64__)
+#if defined(__SSE2__) || defined(__x86_64__) || defined(__amd64__) || defined(_M_X64)
 #define HAVE_SSE2
 #endif
 
