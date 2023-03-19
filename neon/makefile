@@ -1,5 +1,9 @@
-CC=gcc
-CFLAGS=-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard -O3 -I../testvectors -Wall -Wextra -std=c89 -pedantic -Wno-long-long
+CC?=gcc
+ifeq ($(shell uname -m ),arm64)
+	CFLAGS=-march=armv8.4-a+sha3 -O3 -I../testvectors -Wall -Wextra -std=c89 -pedantic -Wno-long-long
+else
+	CFLAGS=-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard -O3 -I../testvectors -Wall -Wextra -std=c89 -pedantic -Wno-long-long
+endif
 BLAKEBINS=blake2s blake2b blake2sp blake2bp blake2xs blake2xb
 
 all:		$(BLAKEBINS) check
