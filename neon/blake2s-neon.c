@@ -440,17 +440,17 @@ int blake2s_init_key( blake2s_state *S, size_t outlen, const void *key, size_t k
 			  vrev32q_u16(					\
 			  vreinterpretq_u16_u32(x)))
 
-#define vrorq_n_u32_12(x) vorrq_u32(					\
+#define vrorq_n_u32_12(x) vsliq_n_u32(					\
 			  vshrq_n_u32(x, 12),				\
-			  vshlq_n_u32(x, 20));
+			  x, 20);
 
-#define vrorq_n_u32_8(x)  vorrq_u32(					\
-			  vshrq_n_u32(x,  8),				\
-			  vshlq_n_u32(x, 24));
+#define vrorq_n_u32_8(x)  vsliq_n_u32(					\
+			  vshrq_n_u32(x, 8 ),				\
+			  x, 24);
 
-#define vrorq_n_u32_7(x)  vorrq_u32(					\
-			  vshrq_n_u32(x,  7),				\
-			  vshlq_n_u32(x, 25));
+#define vrorq_n_u32_7(x)  vsliq_n_u32(					\
+			  vshrq_n_u32(x, 7),				\
+			  x, 25);
 
 #define DIAGONALIZE(row1, row2, row3, row4)				\
   do {									\
